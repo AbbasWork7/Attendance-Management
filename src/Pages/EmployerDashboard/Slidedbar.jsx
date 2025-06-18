@@ -1,19 +1,30 @@
+// src/components/employer/Sidebar.jsx
+
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-
+import { IoLogOutOutline } from "react-icons/io5";
+import { CgProfile } from "react-icons/cg";
+import { FcViewDetails } from "react-icons/fc";
+import { IoMdAddCircleOutline } from "react-icons/io";
+import { IoNotificationsSharp } from "react-icons/io5";
+import { RiTeamLine } from "react-icons/ri";
+import { GiArchiveRegister } from "react-icons/gi";
+import { MdSpaceDashboard } from "react-icons/md";
+import helpGif from "../../assets/gif/help.gif"; // Make sure the path is correct
 
 export default function Sidebar() {
- const menu = [
-  { label: '🏠 Dashboard', path: '/employer-dashboard' }, // ✅ absolute
-  { label: '👥 My Team', path: '/employer-dashboard/my-team' },
-  { label: '🔔 Notifications', path: '/employer-dashboard/notification' },
-  { label: '➕ Add Employee', path: '/employer-dashboard/add-employee' },
-  { label: '📋 Employee Details', path: '/employer-dashboard/employee-details' },
-  { label: '👤 My Profile', path: '/employer-dashboard/my-profile' },
-  { label: '🚪 Logout', path: '/employer-dashboard/logout' },
-  { label: '❓ Need Help?', path: '/employer-dashboard/need-help' },
-];
+  const menu = [
+    { label: ' Dashboard', path: '/employer-dashboard',icon:<MdSpaceDashboard /> },
+    { label: ' My Team', path: '/employer-dashboard/my-team',icon:<RiTeamLine /> },
+    { label : 'Attendance Register', path:'/employer-dashboard/Attendance-Register',icon:<GiArchiveRegister />},
+    { label: ' Notifications', path: '/employer-dashboard/notification',icon:<IoNotificationsSharp /> },
+    { label: ' Add Employee', path: '/employer-dashboard/add-employee',icon:<IoMdAddCircleOutline /> },
+    { label: ' Employee Details', path: '/employer-dashboard/employee-details',icon:<FcViewDetails /> },
+    { label: ' My Profile', path: '/employer-dashboard/my-profile',icon:<CgProfile /> },
+    { label: 'Logout', path: '/employer-dashboard/logout', icon:<IoLogOutOutline />},
+
+  ];
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -32,34 +43,49 @@ export default function Sidebar() {
     <>
       {isMobile && (
         <button
-          className="fixed top-4 left-4 z-50 bg-blue-950 p-2 rounded text-white"
+          className="fixed top-4 left-4 z-50 bg-transparent text-blue-900 px-3 py-1 rounded transition duration-300"
           onClick={() => setIsOpen(!isOpen)}
         >
           ☰
         </button>
       )}
 
-      <motion.aside
-        initial={{ x: -300 }}
-        animate={{ x: isOpen ? 0 : isMobile ? -300 : 0 }}
-        transition={{ type: 'tween', ease: 'easeInOut', duration: 0.4 }}
-        className={`fixed md:static top-0 left-0 w-64 h-full bg-blue-950 text-white shadow-xl p-4 z-40 transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'
-        }`}
+     <motion.aside
+  initial={{ x: -300 }}
+  animate={{ x: isOpen ? 0 : isMobile ? -300 : 0 }}
+  transition={{ type: 'tween', ease: 'easeInOut', duration: 0.4 }}
+  className="fixed md:static top-0 left-0 w-64 h-screen bg-white text-blue-950 shadow-[0_15px_50px_rgba(0,0,0,0.65)] pt-16 md:pt-4 z-40 flex flex-col justify-between overflow-y-auto"
+>
+        {/* Top section */}
+        <div>
+  <div className="text-2xl font-bold mb-6  p-2">Employer Panel</div>
+  <nav className="space-y-2">
+    {menu.map((item, index) => (
+      <Link
+        key={index}
+        to={item.path}
+        className="flex items -center gap-2 hover:bg-blue-100 px-2 py-1.5 rounded transition-all duration-300"
+        onClick={() => isMobile && setIsOpen(false)}
       >
-        <div className="text-2xl font-bold mb-8 text-center">🚀 Employer Panel</div>
-        <nav className="space-y-4">
-          {menu.map((item, i) => (
-            <Link
-              key={i}
-              to={item.path}
-              className="block hover:bg-blue-800 p-2 rounded transition-all duration-300"
-              onClick={() => isMobile && setIsOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {item.icon && <span className="text-lg">{item.icon}</span>}
+        <span className="text-sm">{item.label}</span>
+      </Link>
+    ))}
+  </nav>
+</div>
+
+
+        {/* Bottom "Need Help" link */}
+        <div className="mt-6 text-center animate-bounce px-0">
+          <Link
+            to="/employer-dashboard/need-help"
+            className="flex justify-center items-center gap-2 bg-transparent hover:bg-blue-100 p-2 rounded transition-all duration-300 w-full"
+            onClick={() => isMobile && setIsOpen(false)}
+          >
+            <img src={helpGif} alt="Help" className="w-12 h-12 cursor-pointer " />
+            <span className="text-sm font-semibold text-blue-900 p-5">Need Help❓</span>
+          </Link>
+        </div>
       </motion.aside>
     </>
   );
