@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Landing from './Pages/Landing';
 import Signup from './Pages/Signup';
 import EmployerDashboard from './Pages/EmployerDashboard/EmployerDashboard';
-import EmployeeDashboard from './Pages/EmployeeDashboard';
+import EmployeeDashboard from './Pages/EmployeeDashboard/EmployeeDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function AppRoutes() {
@@ -13,7 +13,7 @@ export default function AppRoutes() {
       <Route path="/landing" element={<Landing />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* Protected Employer Dashboard Route with Sub-Routing */}
+      {/* Protected Employer Dashboard Route with Nested Routes */}
       <Route
         path="/employer-dashboard/*"
         element={
@@ -23,9 +23,9 @@ export default function AppRoutes() {
         }
       />
 
-      {/* Protected Employee Dashboard */}
+      {/* Protected Employee Dashboard Route with Nested Routes */}
       <Route
-        path="/employee-dashboard"
+        path="/employee-dashboard/*"
         element={
           <ProtectedRoute role="employee">
             <EmployeeDashboard />
