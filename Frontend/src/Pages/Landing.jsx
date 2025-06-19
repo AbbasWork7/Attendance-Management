@@ -8,7 +8,7 @@ import landingpic from '../assets/image/landing.jpg';
 import { BsThreadsFill } from "react-icons/bs";
 import { PiMetaLogoDuotone } from "react-icons/pi";
 import PrivacyPolicy from './PrivacyPolicy';
-import CookiePolicy from './CookiePolicy';
+import CookiePolicy from './Cookiepolicy';
 import TermsOfService from './TermsOfService';
 import PricingPolicy from './PricingPolicy';
 
