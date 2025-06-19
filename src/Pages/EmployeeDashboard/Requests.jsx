@@ -14,8 +14,8 @@ export default function Requests() {
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 text-blue-900 transition-all">
-      <h2 className="text-2xl font-semibold mb-4">📨 Requests</h2>
-      <p className="text-sm mb-6">Send official requests like leave, work-from-home, or custom notes to your employer.</p>
+      <h2 className="text-2xl font-semibold mb-4"> Requests</h2>
+      <p className="text-sm mb-6">Send official requests like leave, work-from-home, or custom notes to your manager.</p>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
         <div>

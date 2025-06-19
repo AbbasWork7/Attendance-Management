@@ -1,25 +1,24 @@
-// src/EmployeeDashboard/EmployeeDashboard.jsx
+// src/Pages/EmployeeDashboard/EmployeeDashboard.jsx
 
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Dashboard from '../EmployeeDashboard/Dashboard';
-import Attendance from '../EmployeeDashboard/Attendance';
-import Salary from '../EmployeeDashboard/Salary';
-import Requests from '../EmployeeDashboard/Requests';
-import Notification from '../EmployeeDashboard/Notification';
-import Profile from './Profile'
+import { Outlet } from 'react-router-dom';
+import EmployeeDashboardRoutes from './EmployeeDashboardRoutes';
+import Sidebar from './Sidebar';
+import Header from './Header';
 
-export default function EmployeeDashboard() {
+const EmployeeDashboard = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Dashboard />}>
-        <Route index element={<></>} /> {/* Optional placeholder */}
-        <Route path="Attendance" element={<Attendance />} />
-        <Route path="Salary" element={<Salary />} />
-        <Route path="Requests" element={<Requests />} />
-        <Route path="Notification" element={<Notification />} />  
-        <Route path="Profile" element={<Profile />} />
-       </Route>
-    </Routes>
+    <div className="flex bg-white min-h-screen">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <main className="p-4">
+          <EmployeeDashboardRoutes />
+        </main>
+
+      </div>
+    </div>
   );
-}
+};
+
+export default EmployeeDashboard;
