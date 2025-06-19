@@ -23,19 +23,7 @@ const sampleData = [
     eodFile: '',
     salaryPerDay: 1200,
   },
-   {
-    id: 2,
-    name: 'Jane Smith',
-    profile: 'Designer',
-    imageUrl: '/images/jane.jpg',
-    login: '10:00 AM',
-    logout: '6:00 PM',
-    eodFile: '',
-    salaryPerDay: 1200,
-  },
 ];
-
-const today = new Date().toLocaleDateString();
 
 export default function AttendanceRequest() {
   const [employees, setEmployees] = useState(sampleData);
@@ -96,7 +84,7 @@ export default function AttendanceRequest() {
   return (
     <div className="p-4 md:p-8 bg-white min-h-screen text-blue-900 font-medium">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Attendance Request</h1>
+        <h1 className="text-2xl font-bold">Attendance Record</h1>
         <button
           className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
           onClick={handleBulkSubmit}
@@ -241,12 +229,25 @@ export default function AttendanceRequest() {
               <h3 className="text-lg font-bold mb-4">Attendance Summary</h3>
               {modalData.bulk ? (
                 modalData.data.map((item, i) => (
-                  <div key={i} className="border-b mb-2 pb-2">
+                  <div key={i} className="border-b mb-3 pb-2">
                     <p>👤 {item.name} — {item.profile}</p>
                     <p>🕐 Login: {item.login}</p>
                     <p>🕔 Logout: {item.logout}</p>
                     <p>📌 Status: {item.type}</p>
-                    <p>💰 Salary: ₹{item.salary}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <label className="font-medium">💰 Salary:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        className="border px-2 py-1 rounded w-32"
+                        value={item.salary}
+                        onChange={(e) => {
+                          const updated = [...modalData.data];
+                          updated[i].salary = Number(e.target.value);
+                          setModalData((prev) => ({ ...prev, data: updated }));
+                        }}
+                      />
+                    </div>
                   </div>
                 ))
               ) : (
@@ -255,7 +256,18 @@ export default function AttendanceRequest() {
                   <p>🕐 Login: {modalData.login}</p>
                   <p>🕔 Logout: {modalData.logout}</p>
                   <p>📌 Status: {modalData.type}</p>
-                  <p>💰 Salary: ₹{modalData.salary}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <label className="font-medium">💰 Salary:</label>
+                    <input
+                      type="number"
+                      min="0"
+                      className="border px-2 py-1 rounded w-32"
+                      value={modalData.salary}
+                      onChange={(e) =>
+                        setModalData((prev) => ({ ...prev, salary: Number(e.target.value) }))
+                      }
+                    />
+                  </div>
                 </>
               )}
               <div className="mt-4 text-right">

@@ -1,7 +1,7 @@
 // src/Pages/EmployerDashboard/EmployerDashboard.jsx
 import { Routes, Route } from 'react-router-dom';
 import Sidebar from '../EmployerDashboard/Slidedbar';
-import DashboardHome from './Dashboard';
+import DashboardHome from './DashboardHome';
 import MyTeam from './MyTeam';
 import Notification from './Notification';
 import AddEmployee from './AddEmployee';

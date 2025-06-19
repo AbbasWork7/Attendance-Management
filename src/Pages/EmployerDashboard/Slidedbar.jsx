@@ -12,15 +12,23 @@ import { RiTeamLine } from "react-icons/ri";
 import { GiArchiveRegister } from "react-icons/gi";
 import { MdSpaceDashboard } from "react-icons/md";
 import helpGif from "../../assets/gif/help.gif";
+import { useSubscription } from "../EmployerDashboard/SubscriptionContext"; // ✅ correct path if needed
 
 export default function Sidebar() {
+  const { isSubscribed } = useSubscription(); // ✅ use subscription logic
+
   const menu = [
     { label: 'Dashboard', path: '/employer-dashboard', icon: <MdSpaceDashboard /> },
     { label: 'My Team', path: '/employer-dashboard/my-team', icon: <RiTeamLine /> },
-    { label: 'Attendance Register', path: '/employer-dashboard/Attendance-Register', icon: <GiArchiveRegister /> },
+    { label: 'Attendance Record', path: '/employer-dashboard/Attendance-Register', icon: <GiArchiveRegister /> },
     { label: 'Notifications', path: '/employer-dashboard/notification', icon: <IoNotificationsSharp /> },
-    { label: 'Add Employee', path: '/employer-dashboard/add-employee', icon: <IoMdAddCircleOutline /> },
-    { label: 'Employee Details', path: '/employer-dashboard/employee-details', icon: <FcViewDetails /> },
+    {
+      label: 'Add candidate',
+      path: '/employer-dashboard/add-employee',
+      icon: <IoMdAddCircleOutline />,
+       // ✅ lock if not subscribed
+    },
+    { label: 'Candidate Details', path: '/employer-dashboard/employee-details', icon: <FcViewDetails /> },
     { label: 'My Profile', path: '/employer-dashboard/my-profile', icon: <CgProfile /> },
     { label: 'Logout', path: '/employer-dashboard/logout', icon: <IoLogOutOutline /> },
   ];
@@ -61,18 +69,29 @@ export default function Sidebar() {
       >
         {/* Top Section */}
         <div>
-          <div className="text-2xl font-bold mb-6 p-2">Employer Panel</div>
+          <div className="text-2xl font-bold mb-6 p-2">Organization Panel</div>
           <nav className="space-y-2">
             {menu.map((item, index) => (
-              <Link
-                key={index}
-                to={item.path}
-                className="flex items-center gap-2 hover:bg-blue-100 px-2 py-1.5 rounded transition-all duration-300"
-                onClick={() => isMobile && setIsOpen(false)}
-              >
-                {item.icon && <span className="text-lg">{item.icon}</span>}
-                <span className="text-sm">{item.label}</span>
-              </Link>
+              item.locked ? (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 bg-gray-100 text-gray-400 px-2 py-1.5 rounded cursor-not-allowed"
+                  title="🔒 Unlock by subscribing"
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="text-sm line-through">{item.label}</span>
+                </div>
+              ) : (
+                <Link
+                  key={index}
+                  to={item.path}
+                  className="flex items-center gap-2 hover:bg-blue-100 px-2 py-1.5 rounded transition-all duration-300"
+                  onClick={() => isMobile && setIsOpen(false)}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="text-sm">{item.label}</span>
+                </Link>
+              )
             ))}
           </nav>
         </div>
@@ -92,4 +111,3 @@ export default function Sidebar() {
     </>
   );
 }
-// change
