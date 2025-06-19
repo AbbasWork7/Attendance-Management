@@ -5,6 +5,7 @@ import EmployerDashboard from './Pages/EmployerDashboard/EmployerDashboard';
 import EmployeeDashboard from './Pages/EmployeeDashboard/EmployeeDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
+
 export default function AppRoutes() {
   return (
     <Routes>
