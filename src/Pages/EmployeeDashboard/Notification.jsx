@@ -23,7 +23,7 @@ const mockNotifications = [
 export default function Notification() {
   return (
     <div className="bg-white rounded-xl shadow-md p-6 text-blue-900 transition-all">
-      <h2 className="text-2xl font-semibold mb-4">🔔 Notifications</h2>
+      <h2 className="text-2xl font-semibold mb-4">Notifications</h2>
       <p className="text-sm mb-6">All your important alerts will appear here!</p>
 
       <ul className="space-y-4">
