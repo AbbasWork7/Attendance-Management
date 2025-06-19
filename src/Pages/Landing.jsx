@@ -7,10 +7,10 @@ import { FaSquareInstagram } from "react-icons/fa6";
 import landingpic from '../assets/image/landing.jpg';
 import { BsThreadsFill } from "react-icons/bs";
 import { PiMetaLogoDuotone } from "react-icons/pi";
-// import PrivacyPolicy from './PrivacyPolicy';
-// import CookiePolicy from './CookiePolicy';
-// import TermsOfService from './TermsOfService';
-// import PricingPolicy from './PricingPolicy';
+import PrivacyPolicy from './PrivacyPolicy';
+import CookiePolicy from './CookiePolicy';
+import TermsOfService from './TermsOfService';
+import PricingPolicy from './PricingPolicy';
 
 
 
