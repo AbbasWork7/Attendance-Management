@@ -3,8 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import companyLogo from '../assets/image/logo.png';
 import { useAuth } from '../authContext';
+import { FaSquareInstagram } from "react-icons/fa6";
+import landingpic from '../assets/image/landing.jpg';
+import { BsThreadsFill } from "react-icons/bs";
+import { PiMetaLogoDuotone } from "react-icons/pi";
+import PrivacyPolicy from './PrivacyPolicy';
+import CookiePolicy from './CookiePolicy';
+import TermsOfService from './TermsOfService';
+import PricingPolicy from './PricingPolicy';
 
-// Mock partner logos (replace with actual imports)
+
+
 const partnerLogos = [
   { name: 'TechCorp', logo: companyLogo },
   { name: 'InnovateInc', logo: companyLogo },
@@ -17,36 +26,137 @@ export default function LandingPage() {
   const [role, setRole] = useState('employee');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { setUser } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showCookiePolicy, setShowCookiePolicy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPricingPolicy, setShowPricingPolicy] = useState(false);
+  
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setUser({ username: email, role });
-    navigate(role === 'employer' ? '/employer-dashboard' : '/employee-dashboard');
+    setError('');
+    
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+    
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real app, you would verify credentials with your backend
+      setUser({ username: email, role });
+      navigate(role === 'employer' ? '/employer-dashboard' : '/employee-dashboard');
+    } catch (err) {
+      setError('Invalid email or password');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const sendOtp = async () => {
+    if (!email) {
+      setError('Please enter your email');
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Simulate API call to send OTP
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real app, you would send an OTP to the user's email
+      setOtpSent(true);
+      setError('An OTP has been sent to your email. Please check and enter it below.');
+    } catch (err) {
+      setError('Failed to send OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    
+    if (!otp || !newPassword || !confirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Simulate API call to verify OTP and reset password
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real app, you would verify OTP and update password in backend
+      setError('Password reset successfully! You can now login with your new password.');
+      setPassword(newPassword);
+      setShowForgotPassword(false);
+      setOtpSent(false);
+      setOtp('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setError('Invalid OTP or failed to reset password');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-white text-blue-900">
       {/* Header */}
-      <header className="bg-gray-800 shadow-md fixed w-full z-10">
+      <header className="bg-white shadow-md fixed w-full z-10">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          {/* Logo - Left Side */}
           <div className="flex items-center space-x-2">
             <img src={companyLogo} alt="Company Logo" className="h-10" />
-            <span className="text-xl font-bold">AttendancePro</span>
+            <span className="text-xl font-bold text-blue-900">VTraco</span>
           </div>
 
-          {/* Desktop Navigation - Right Side */}
           <nav className="hidden md:flex space-x-8">
-            <a href="#home" className="hover:text-blue-400 font-medium">Home</a>
-            <a href="#about" className="hover:text-blue-400 font-medium">About Us</a>
-            <a href="#contact" className="hover:text-blue-400 font-medium">Contact Us</a>
+            <a href="#home" className="hover:text-blue-600 font-medium">Home</a>
+            <a href="#about" className="hover:text-blue-600 font-medium">About Us</a>
+            <a href="#contact" className="hover:text-blue-600 font-medium">Contact Us</a>
           </nav>
 
-          {/* Mobile Menu Button - Right Side */}
           <button 
-            className="md:hidden"
+            className="md:hidden text-blue-900"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,12 +165,11 @@ export default function LandingPage() {
           </button>
         </div>
 
-        {/* Mobile Dropdown Menu */}
         {isMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 right-0 bg-gray-800 shadow-lg py-4 px-4">
-            <a href="#home" className="block py-2 hover:text-blue-400">Home</a>
-            <a href="#about" className="block py-2 hover:text-blue-400">About Us</a>
-            <a href="#contact" className="block py-2 hover:text-blue-400">Contact Us</a>
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg py-4 px-4">
+            <a href="#home" className="block py-2 hover:text-blue-600">Home</a>
+            <a href="#about" className="block py-2 hover:text-blue-600">About Us</a>
+            <a href="#contact" className="block py-2 hover:text-blue-600">Contact Us</a>
           </div>
         )}
       </header>
@@ -68,173 +177,317 @@ export default function LandingPage() {
       {/* Main Content */}
       <main className="pt-20">
         {/* Hero Section */}
-        <section id="home" className="min-h-screen flex flex-col md:flex-row items-center justify-center px-6 py-20 space-y-10 md:space-y-0 md:space-x-10">
+        <section
+          id="home"
+          className="min-h-screen flex flex-col md:flex-row items-center justify-center px-6 py-20 space-y-10 md:space-y-0 md:space-x-10 relative overflow-hidden"
+        >
+        {/* Background Image with Overlay */}
+<div 
+  className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+  style={{ backgroundImage: `url(${landingpic})` }}  // ✅ fixed: use backticks here
+/>
+<div className="absolute inset-0 bg-blue-50/30 backdrop-blur-sm z-10" />
+
           {/* Left Welcome Section */}
           <motion.div
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="w-full md:w-1/2 text-center"
+            className="w-full md:w-1/2 text-center relative z-20 px-4"
           >
-            <h1 className="text-3xl sm:text-4xl font-bold text-blue-400 mb-3">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-800 mb-6">
               Welcome to Attendance Tracker
             </h1>
-            <p className="text-lg text-gray-300">
+            <p className="text-lg md:text-xl text-blue-700 mb-8">
               Track attendance and salary efficiently with our modern solution.
             </p>
+            <button 
+              onClick={() => navigate('/signup')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition text-lg font-medium shadow-lg"
+            >
+              Get Started
+            </button>
           </motion.div>
 
-          {/* Right Login Form */}
+          {/* Right Login/Password Reset Form */}
           <motion.div
             initial={{ x: 50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="w-full md:w-1/3 bg-gray-800 p-8 rounded-xl shadow-xl"
+            className="w-full md:w-1/3 bg-blue-50/70 backdrop-blur-sm p-8 rounded-xl shadow-xl border border-blue-100 relative z-20"
           >
-            <h2 className="text-2xl font-bold mb-6 text-blue-400 text-center">Login</h2>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-300 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="Enter your email"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+            <h2 className="text-2xl font-bold mb-6 text-blue-800 text-center">
+              {showForgotPassword ? 'Reset Password' : 'Login'}
+            </h2>
+            
+            {error && (
+              <div className={`mb-4 p-3 rounded-lg text-sm ${
+                error.includes('successfully') ? 'bg-green-100 text-green-700' : 'bg-red-100/80 text-red-700'
+              }`}>
+                {error}
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm text-gray-300 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="Enter your password"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
+            {!showForgotPassword ? (
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <label className="block text-sm text-blue-800 mb-1 font-medium">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="Enter your email"
+                    className="w-full px-4 py-2 bg-white/80 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-blue-900"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm text-gray-300 mb-1">Login As</label>
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                <div>
+                  <label className="block text-sm text-blue-800 mb-1 font-medium">Password</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="Enter your password"
+                    className="w-full px-4 py-2 bg-white/80 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-blue-900"
+                  />
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div>
+                    <label className="block text-sm text-blue-800 mb-1 font-medium">Login As</label>
+                    <select
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="w-full px-4 py-2 bg-white/80 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-blue-900"
+                    >
+                      <option value="employee">Employee</option>
+                      <option value="employer">Employer</option>
+                    </select>
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotPassword(true);
+                      setOtpSent(false);
+                      setError('');
+                    }}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium mt-5"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition font-medium shadow-md ${
+                    isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
                 >
-                  <option value="employee">Employee</option>
-                  <option value="employer">Employer</option>
-                </select>
-              </div>
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </button>
 
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-              >
-                Login
-              </button>
-            </form>
+                <p className="text-sm text-center text-blue-700 mt-4">
+                  Don't have an account?{' '}
+                  <span
+                    onClick={() => navigate('/signup')}
+                    className="text-blue-800 cursor-pointer hover:underline font-medium"
+                  >
+                    Signup
+                  </span>
+                </p>
+              </form>
+            ) : (
+              <form onSubmit={handlePasswordReset} className="space-y-4">
+                {!otpSent ? (
+                  <>
+                    <div>
+                      <label className="block text-sm text-blue-800 mb-1 font-medium">Email</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        placeholder="Enter your email"
+                        className="w-full px-4 py-2 bg-white/80 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-blue-900"
+                      />
+                    </div>
+                    
+                    <button
+                      type="button"
+                      onClick={sendOtp}
+                      disabled={isLoading}
+                      className={`w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition font-medium shadow-md ${
+                        isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      {isLoading ? 'Sending OTP...' : 'Send OTP'}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-sm text-blue-800 mb-1 font-medium">OTP</label>
+                      <input
+                        type="text"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        required
+                        placeholder="Enter 6-digit OTP"
+                        className="w-full px-4 py-2 bg-white/80 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-blue-900"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm text-blue-800 mb-1 font-medium">New Password</label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                        placeholder="Enter new password"
+                        className="w-full px-4 py-2 bg-white/80 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-blue-900"
+                      />
+                    </div>
 
-            <p className="text-sm text-center text-gray-400 mt-4">
-              Don't have an account?{' '}
-              <span
-                onClick={() => navigate('/signup')}
-                className="text-blue-400 cursor-pointer hover:underline"
-              >
-                Signup
-              </span>
-            </p>
+                    <div>
+                      <label className="block text-sm text-blue-800 mb-1 font-medium">Confirm Password</label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        placeholder="Confirm new password"
+                        className="w-full px-4 py-2 bg-white/80 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-blue-900"
+                      />
+                    </div>
+                    
+                    <div className="flex space-x-4">
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className={`w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition font-medium shadow-md ${
+                          isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        {isLoading ? 'Resetting...' : 'Reset Password'}
+                      </button>
+                      
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowForgotPassword(false);
+                          setOtpSent(false);
+                          setError('');
+                        }}
+                        className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg transition font-medium shadow-md"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                )}
+              </form>
+            )}
           </motion.div>
         </section>
 
         {/* Mission & Vision Section */}
-        <section id="about" className="py-20 bg-gray-800">
+        <section id="about" className="py-20 bg-blue-50">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-16 text-blue-400">Our Mission & Vision</h2>
+            <h2 className="text-3xl font-bold text-center mb-16 text-blue-800">Our Mission & Vision</h2>
             
             <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-              <div className="bg-gray-700 p-8 rounded-xl border-l-4 border-blue-500">
-                <h3 className="text-2xl font-bold mb-4 text-white">Our Mission</h3>
-                <p className="text-gray-300">
-                  To empower organizations with intuitive, reliable attendance tracking 
-                  solutions that streamline workforce management and enhance productivity.
-                </p>
-              </div>
+              <motion.div 
+                whileHover={{ scale: 1.03 }}
+                className="bg-white p-8 rounded-xl border-l-4 border-blue-500 shadow-md"
+              >
+                <h3 className="text-2xl font-bold mb-4 text-blue-900">Our Mission</h3>
+                <p className="text-blue-700">
+                To empower organizations, institutions, and businesses with a reliable, flexible, and transparent attendance and monitoring system that enhances accountability, saves time, and enables smart decision-making — all through a wallet-based, prepaid digital platform that ensures efficiency and affordability.</p>
+              </motion.div>
               
-              <div className="bg-gray-700 p-8 rounded-xl border-l-4 border-blue-500">
-                <h3 className="text-2xl font-bold mb-4 text-white">Our Vision</h3>
-                <p className="text-gray-300">
-                  To become the global leader in attendance management systems, setting new standards 
-                  for accuracy, efficiency, and user experience in workforce tracking technology.
+              <motion.div 
+                whileHover={{ scale: 1.03 }}
+                className="bg-white p-8 rounded-xl border-l-4 border-blue-500 shadow-md"
+              >
+                <h3 className="text-2xl font-bold mb-4 text-blue-900">Our Vision</h3>
+                <p className="text-blue-700">
+                 To become the most accessible attendance management solution globally, empowering 10 million organizations in developing sectors by 2030. We envision a world where every school, small business, and community organization can track attendance efficiently.
                 </p>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
         {/* Partners Section */}
-        <section id="partners" className="py-20 bg-gray-900">
+        <section id="partners" className="py-20 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-16 text-blue-400">Our Working Partners</h2>
+            <h2 className="text-3xl font-bold text-center mb-16 text-blue-800">Our Clients</h2>
             
             <div className="flex flex-wrap justify-center items-center gap-12">
               {partnerLogos.map((partner, index) => (
-                <div key={index} className="w-40 h-24 bg-gray-800 rounded-lg shadow-md flex items-center justify-center p-4">
+                <motion.div 
+                  key={index} 
+                  whileHover={{ scale: 1.1 }}
+                  className="w-40 h-24 bg-blue-50 rounded-lg shadow-md flex items-center justify-center p-4 border border-blue-100"
+                >
                   <img 
                     src={partner.logo} 
                     alt={partner.name} 
                     className="max-h-full max-w-full object-contain"
                   />
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-20 bg-gray-800">
+        <section id="contact" className="py-20 bg-blue-50">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-16 text-blue-400">Contact Us</h2>
+            <h2 className="text-3xl font-bold text-center mb-16 text-blue-800">Contact Us</h2>
             
             <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
               <div>
-                <h3 className="text-2xl font-bold mb-6 text-white">Get in Touch</h3>
-                <p className="mb-6 text-gray-300">
-                  Have questions about our attendance tracking solutions? Reach out to our team and 
-                  we'll get back to you as soon as possible.
+                <h3 className="text-2xl font-bold mb-6 text-blue-900">Get in Touch</h3>
+                <p className="mb-6 text-blue-700">
+                  Let’s build smarter teams together.
+Contact us now and start your journey with Vtraco!
                 </p>
                 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-4">
-                    <svg className="w-6 h-6 mt-1 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 mt-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
                     <div>
-                      <h4 className="font-bold text-white">Address</h4>
-                      <p className="text-gray-300">123 Business Park, Suite 456<br />Tech City, TC 98765</p>
+                      <h4 className="font-bold text-blue-900">Address</h4>
+                      <p className="text-blue-700">No.3, 3rd street, Rajeswari nagar, S.Kolathur<br />TChennai - 600091</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start space-x-4">
-                    <svg className="w-6 h-6 mt-1 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 mt-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                     </svg>
                     <div>
-                      <h4 className="font-bold text-white">Phone</h4>
-                      <p className="text-gray-300">+1 (555) 123-4567</p>
+                      <h4 className="font-bold text-blue-900">Phone</h4>
+                      <p className="text-blue-700">+91 755 034 4823</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start space-x-4">
-                    <svg className="w-6 h-6 mt-1 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 mt-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                     <div>
-                      <h4 className="font-bold text-white">Email</h4>
-                      <p className="text-gray-300">info@attendancetracker.com</p>
+                      <h4 className="font-bold text-blue-900">Email</h4>
+                      <p className="text-blue-700"> vtraco.official@gmail.com</p>
                     </div>
                   </div>
                 </div>
@@ -243,31 +496,31 @@ export default function LandingPage() {
               <div>
                 <form className="space-y-6">
                   <div>
-                    <label htmlFor="name" className="block mb-2 font-medium text-white">Your Name</label>
+                    <label htmlFor="name" className="block mb-2 font-medium text-blue-900">Your Name</label>
                     <input 
                       type="text" 
                       id="name" 
-                      className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                      placeholder="John Doe"
+                      className="w-full px-4 py-2 rounded bg-white border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-900"
+                      placeholder="VTraco"
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="email" className="block mb-2 font-medium text-white">Your Email</label>
+                    <label htmlFor="email" className="block mb-2 font-medium text-blue-900">Your Email</label>
                     <input 
                       type="email" 
                       id="email" 
-                      className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                      placeholder="john@example.com"
+                      className="w-full px-4 py-2 rounded bg-white border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-900"
+                      placeholder="admin@vtraco.com"
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="message" className="block mb-2 font-medium text-white">Your Message</label>
+                    <label htmlFor="message" className="block mb-2 font-medium text-blue-900">Your Message</label>
                     <textarea 
                       id="message" 
                       rows="4" 
-                      className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                      className="w-full px-4 py-2 rounded bg-white border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-900"
                       placeholder="How can we help you?"
                     ></textarea>
                   </div>
@@ -286,62 +539,198 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
+      <footer className="bg-white text-blue-700 py-12 border-t border-blue-100">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
                 <img src={companyLogo} alt="Company Logo" className="h-10" />
-                <span className="text-xl font-bold text-white">AttendancePro</span>
+                <span className="text-xl font-bold text-blue-900">VTraco</span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-blue-600">
                 The most advanced attendance tracking system designed for modern businesses.
               </p>
             </div>
             
             <div>
-              <h3 className="text-white text-lg font-bold mb-4">Quick Links</h3>
+              <h3 className="text-blue-900 text-lg font-bold mb-4">Quick Links</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#home" className="hover:text-blue-400 transition">Home</a></li>
-                <li><a href="#about" className="hover:text-blue-400 transition">About Us</a></li>
-                <li><a href="#partners" className="hover:text-blue-400 transition">Partners</a></li>
-                <li><a href="#contact" className="hover:text-blue-400 transition">Contact</a></li>
+                <li><a href="#home" className="hover:text-blue-600 transition">Home</a></li>
+                <li><a href="#about" className="hover:text-blue-600 transition">About Us</a></li>
+                <li><a href="#partners" className="hover:text-blue-600 transition">Partners</a></li>
+                <li><a href="#contact" className="hover:text-blue-600 transition">Contact</a></li>
               </ul>
             </div>
             
             <div>
-              <h3 className="text-white text-lg font-bold mb-4">Legal</h3>
+              <h3 className="text-blue-900 text-lg font-bold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-blue-400 transition">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition">Cookie Policy</a></li>
+                <li>
+                  <button 
+                  onClick={() => setShowPrivacyPolicy(true)} 
+                  className="hover:text-blue-600 transition text-left"
+                  >
+                  Privacy Policy
+                  </button>
+                  </li>
+                  {showPrivacyPolicy && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="p-6">
+        {/* Header with Close Button */}
+        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
+          <h2 className="text-2xl font-bold text-blue-900">Privacy Policy</h2>
+          <button 
+            onClick={() => setShowPrivacyPolicy(false)}
+            className="text-gray-500 hover:text-gray-700 p-1"
+          >
+            ✕ {/* Or use an SVG icon */}
+          </button>
+        </div>
+
+        {/* Privacy Policy Content */}
+        <PrivacyPolicy />
+
+        {/* Close Button at Bottom */}
+        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
+          <button
+            onClick={() => setShowPrivacyPolicy(false)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+                <li>
+                  <button 
+                  onClick={() => setShowTerms(true)} 
+                  className="hover:text-blue-600 transition text-left"
+                >
+                  Terms of Service
+                </button>
+              </li>{showTerms && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
+          <h2 className="text-2xl font-bold text-blue-900">Terms of Service</h2>
+          <button 
+            onClick={() => setShowTerms(false)}
+            className="text-gray-500 hover:text-gray-700 p-1"
+          >
+            ✕
+          </button>
+        </div>
+        <TermsOfService />
+        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
+          <button
+            onClick={() => setShowTerms(false)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+                <li>
+                <button 
+                  onClick={() => setShowPricingPolicy(true)} 
+                  className="hover:text-blue-600 transition text-left"
+                >
+                  Pricing Policy
+                </button>
+              </li>
+              {showPricingPolicy && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
+          <h2 className="text-2xl font-bold text-blue-900">Pricing Policy</h2>
+          <button 
+            onClick={() => setShowPricingPolicy(false)}
+            className="text-gray-500 hover:text-gray-700 p-1"
+          >
+            ✕
+          </button>
+        </div>
+        <PricingPolicy />
+        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
+          <button
+            onClick={() => setShowPricingPolicy(false)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+                <li>
+                <button 
+                  onClick={() => setShowCookiePolicy(true)} 
+                  className="hover:text-blue-600 transition text-left"
+                >
+                  Cookie Policy
+                </button>
+                </li>
+                {showCookiePolicy && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
+          <h2 className="text-2xl font-bold text-blue-900">Cookie Policy</h2>
+          <button 
+            onClick={() => setShowCookiePolicy(false)}
+            className="text-gray-500 hover:text-gray-700 p-1"
+          >
+            ✕
+          </button>
+        </div>
+        <CookiePolicy />
+        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
+          <button
+            onClick={() => setShowCookiePolicy(false)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)} 
               </ul>
             </div>
             
             <div>
-              <h3 className="text-white text-lg font-bold mb-4">Connect With Us</h3>
+              <h3 className="text-blue-900 text-lg font-bold mb-4">Connect With Us</h3>
               <div className="flex space-x-4">
-                <a href="#" className="hover:text-blue-400 transition">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+                <a href="https://www.threads.com/@vtraco_official" className="hover:text-blue-600 transition">
+                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+                    <BsThreadsFill />
                   </svg>
                 </a>
-                <a href="#" className="hover:text-blue-400 transition">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    
+                <a href="https://www.instagram.com/vtraco_official?igsh=YWF3Z2ozOGYxZDRs&utm_source=ig_contact_invite " className="hover:text-blue-600 transition"  >
+                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" >
+                  <FaSquareInstagram />
                   </svg>
                 </a>
-                <a href="#" className="hover:text-blue-400 transition">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    
-                  </svg>
-                </a>
+                
               </div>
             </div>
           </div>
           
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; {new Date().getFullYear()} AttendancePro. All rights reserved.</p>
+          <div className="border-t border-blue-100 mt-8 pt-8 text-center text-sm text-blue-600">
+            <p>&copy; {new Date().getFullYear()} Karyoun Innovations. All rights reserved.</p>
           </div>
         </div>
       </footer>
