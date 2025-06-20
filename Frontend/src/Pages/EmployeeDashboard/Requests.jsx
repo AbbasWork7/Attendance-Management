@@ -1,20 +1,35 @@
-// src/EmployeeDashboard/pages/Requests.jsx
-
 import React, { useState } from 'react';
+import axios from 'axios';
 
 export default function Requests() {
-  const [type, setType] = useState('Leave');
+  const [type, setType] = useState('leave'); // match with API: "leave", "wfh", etc.
   const [message, setMessage] = useState('');
+  const [status, setStatus] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // alert(📨 ${type} Request Submitted!\n📝 ${message});
-    setMessage('');
+
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/api/employee/employee-request/', {
+        request_type: type,
+        reason: message,
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        setStatus(' Request submitted successfully!');
+        setMessage('');
+      } else {
+        setStatus(' Failed to submit request.');
+      }
+    } catch (error) {
+      console.error('API Error:', error);
+      setStatus(' An error occurred while submitting.');
+    }
   };
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 text-blue-900 transition-all">
-      <h2 className="text-2xl font-semibold mb-4"> Requests</h2>
+      <h2 className="text-2xl font-semibold mb-4">Requests</h2>
       <p className="text-sm mb-6">Send official requests like leave, work-from-home, or custom notes to your manager.</p>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
@@ -25,9 +40,9 @@ export default function Requests() {
             onChange={(e) => setType(e.target.value)}
             className="w-full border p-2 rounded"
           >
-            <option value="Leave">🌴 Leave</option>
-            <option value="WFH">🏠 Work From Home</option>
-            <option value="Other">✏ Other</option>
+            <option value="leave">🌴 Leave</option>
+            <option value="wfh">🏠 Work From Home</option>
+            <option value="other">✏ Other</option>
           </select>
         </div>
         <div>
@@ -48,6 +63,8 @@ export default function Requests() {
           📨 Submit Request
         </button>
       </form>
+
+      {status && <p className="mt-4 text-sm">{status}</p>}
     </div>
   );
 }

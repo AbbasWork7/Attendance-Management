@@ -1,42 +1,58 @@
 // src/EmployeeDashboard/pages/Notifications.jsx
 
-import React from 'react';
-
-const mockNotifications = [
-  {
-    id: 1,
-    message: '🎉 Your leave request was approved!',
-    date: '2025-06-17',
-  },
-  {
-    id: 2,
-    message: '🕒 Don’t forget to log in before 10:00 AM!',
-    date: '2025-06-18',
-  },
-  {
-    id: 3,
-    message: '📢 Company meeting scheduled for Friday at 4 PM.',
-    date: '2025-06-18',
-  },
-];
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export default function Notification() {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    axios.get('http://127.0.0.1:8000/api/employee/notifications/')
+      .then((response) => {
+        if (response.data.status === 'success') {
+          setNotifications(response.data.notifications);
+        } else {
+          setError('⚠️ Failed to load notifications.');
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('API Error:', err);
+        setError('❌ Could not load notifications.');
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <div className="bg-white rounded-xl shadow-md p-6 text-blue-900 transition-all">
       <h2 className="text-2xl font-semibold mb-4">Notifications</h2>
       <p className="text-sm mb-6">All your important alerts will appear here!</p>
 
-      <ul className="space-y-4">
-        {mockNotifications.map((note) => (
-          <li
-            key={note.id}
-            className="p-4 bg-blue-50 border-l-4 border-indigo-400 rounded shadow-sm"
-          >
-            <p className="font-medium">{note.message}</p>
-            <p className="text-xs text-gray-500">📅 {note.date}</p>
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+        <p>🔄 Loading...</p>
+      ) : error ? (
+        <p className="text-red-600">{error}</p>
+      ) : notifications.length === 0 ? (
+        <p>📭 No notifications available.</p>
+      ) : (
+        <ul className="space-y-4">
+          {notifications.map((note) => (
+            <li
+              key={note.id}
+              className={`p-4 border-l-4 rounded shadow-sm ${
+                note.is_read ? 'bg-gray-100 border-gray-400' : 'bg-blue-50 border-indigo-500'
+              }`}
+            >
+              <p className="font-medium">{note.message}</p>
+              <p className="text-xs text-gray-500">
+                📅 {new Date(note.created_at).toLocaleString()}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { toast } from 'react-hot-toast';
+import axios from 'axios';
 
 export default function Attendance() {
   const today = new Date();
@@ -11,6 +12,7 @@ export default function Attendance() {
   const [date, setDate] = useState(today);
   const [loginInfo, setLoginInfo] = useState(null);
   const [logoutTime, setLogoutTime] = useState('');
+  const [eodReport, setEodReport] = useState('');
   const [eodFile, setEodFile] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [attendanceMap, setAttendanceMap] = useState({});
@@ -34,28 +36,84 @@ export default function Attendance() {
     }
   }, [uploadSuccess, logoutTime]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const now = new Date();
-    setLoginInfo({
-      time: now.toLocaleTimeString(),
-      date: now.toLocaleDateString(),
-      day: now.toLocaleDateString('en-US', { weekday: 'long' })
-    });
+    const formattedDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    const formattedTime = now.toTimeString().slice(0, 5); // HH:MM
+
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/api/employee/attendance/login/', {
+        date: formattedDate,
+        time: formattedTime,
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        setLoginInfo({
+          time: now.toLocaleTimeString(),
+          date: now.toLocaleDateString(),
+          day: now.toLocaleDateString('en-US', { weekday: 'long' })
+        });
+        toast.success(' Login time recorded!');
+      } else {
+        toast.error(' Failed to record login time.');
+      }
+    } catch (error) {
+      console.error('Login API Error:', error);
+      toast.error(' Error logging attendance.');
+    }
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) return;
-    if (file.size > 1024 * 1024) return;
+    if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+      toast.error(' Invalid file type.');
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      toast.error(' File size must be ≤ 1MB.');
+      return;
+    }
     setEodFile(file);
     setUploadSuccess(true);
   };
 
-  const handleLogout = () => {
-    if (!eodFile) return;
+  const handleLogout = async () => {
+    if (!eodFile || !eodReport.trim()) {
+      toast.error('⚠️ Please upload your EOD file and enter a report.');
+      return;
+    }
+
     const now = new Date();
-    setLogoutTime(now.toLocaleTimeString());
+    const formattedDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
+
+    const formData = new FormData();
+    formData.append('date', formattedDate);
+    formData.append('eod_report', eodReport);
+    formData.append('document', eodFile);
+
+    try {
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/employee/attendance/logout/',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        const logoutTimeStr = now.toLocaleTimeString();
+        setLogoutTime(logoutTimeStr);
+        toast.success(` Logged out at ${logoutTimeStr}`);
+      } else {
+        toast.error(' Failed to log out.');
+      }
+    } catch (error) {
+      console.error('Logout API Error:', error);
+      toast.error(' Error while logging out.');
+    }
   };
 
   const getTileClassName = ({ date, view }) => {
@@ -118,6 +176,15 @@ export default function Attendance() {
 
               {!logoutTime && (
                 <>
+                  <label className="block text-sm font-medium text-gray-700">End of Day Report</label>
+                  <textarea
+                    value={eodReport}
+                    onChange={(e) => setEodReport(e.target.value)}
+                    rows="3"
+                    className="w-full border p-2 rounded mb-2"
+                    placeholder="e.g. Completed API integrations..."
+                  />
+
                   <label className="block text-sm font-medium text-gray-700">Upload EOD File (PDF/DOC only)</label>
                   <input
                     type="file"
@@ -126,12 +193,12 @@ export default function Attendance() {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-sm"
                   />
                   {uploadSuccess && (
-                    <p className="text-green-600 text-sm">✅ File uploaded successfully.</p>
+                    <p className="text-green-600 text-sm"> File uploaded successfully.</p>
                   )}
                   <button
                     onClick={handleLogout}
-                    className={`bg-red-500 text-white px-6 py-2 rounded-lg mt-2 hover:bg-red-600 transition ${!uploadSuccess && 'opacity-50 cursor-not-allowed'}`}
-                    disabled={!uploadSuccess}
+                    className={`bg-red-500 text-white px-6 py-2 rounded-lg mt-2 hover:bg-red-600 transition ${(!uploadSuccess || !eodReport.trim()) && 'opacity-50 cursor-not-allowed'}`}
+                    disabled={!uploadSuccess || !eodReport.trim()}
                   >
                     🔒 Logout
                   </button>
@@ -140,7 +207,7 @@ export default function Attendance() {
 
               {logoutTime && (
                 <p className="text-green-600 font-semibold">
-                  ✅ Logged out at: {logoutTime}
+                   Logged out at: {logoutTime}
                 </p>
               )}
             </div>
