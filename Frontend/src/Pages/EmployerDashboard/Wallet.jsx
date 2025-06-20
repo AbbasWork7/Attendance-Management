@@ -5,12 +5,12 @@ import toast from "react-hot-toast";
 
 export default function Wallet() {
   const { wallet, rechargeWallet } = useSubscription();
-  const hasShownToast = useRef(false); // prevent multiple toasts
+  const hasShownToast = useRef(false);
 
   const handleRecharge = () => {
-    rechargeWallet(10); // for example, recharge ₹10
+    rechargeWallet(10); // Recharge ₹10
     toast.success("✅ Wallet recharged!");
-    hasShownToast.current = false; // allow future toasts
+    hasShownToast.current = false; // Allow toast to show again later
   };
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function Wallet() {
         </div>
       ), { duration: 4000 });
     }
-  }, [wallet]);
+  }, [wallet, handleRecharge]);
 
   return (
     <motion.div

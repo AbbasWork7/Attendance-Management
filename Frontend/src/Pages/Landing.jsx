@@ -2,15 +2,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import companyLogo from '../assets/image/logo.png';
-import { useAuth } from '../authContext';
-import { FaSquareInstagram } from "react-icons/fa6";
 import landingpic from '../assets/image/landing.jpg';
-import { BsThreadsFill } from "react-icons/bs";
-import { PiMetaLogoDuotone } from "react-icons/pi";
+import { useAuth } from '../authContext';
 import PrivacyPolicy from './PrivacyPolicy';
 import CookiePolicy from './Cookiepolicy';
 import TermsOfService from './TermsOfService';
 import PricingPolicy from './PricingPolicy';
+import { FaSquareInstagram } from "react-icons/fa6";
+import { BsThreadsFill } from "react-icons/bs";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://vtraco.onrender.com';
+
 
 const partnerLogos = [
   { name: 'TechCorp', logo: companyLogo },
@@ -21,88 +23,69 @@ const partnerLogos = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
+
   const [role, setRole] = useState('employee');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { setUser } = useAuth();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showCookiePolicy, setShowCookiePolicy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPricingPolicy, setShowPricingPolicy] = useState(false);
 
+  // ✅ Forgot Password Related States
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // Validation
+  //  console.log("Login API URL:", `${BASE_URL}/api/users/login`);
+
     if (!email || !password) {
       setError('Please fill in all fields');
-      return;
-    }
-    
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-    
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
       return;
     }
 
     try {
       setIsLoading(true);
-      
-      const response = await fetch('http://127.0.0.1:8000/api/users/login', {
+
+      const response = await fetch(`${BASE_URL}api/users/login/`,  {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed. Please check your credentials.');
+        throw new Error(data.detail || data.message || 'Invalid credentials');
       }
 
-      // Store user data and token
-      setUser({ 
-        username: data.user?.name || email,
+      const userData = {
+        username: data.user?.username || email,
         email: email,
         role: data.user?.role || role,
-        token: data.token 
-      });
+        token: data.token,
+      };
 
-      // Store token in localStorage for persistent sessions
+      setUser(userData);
       localStorage.setItem('authToken', data.token);
-      localStorage.setItem('userData', JSON.stringify({
-        username: data.user?.name || email,
-        email: email,
-        role: data.user?.role || role
-      }));
+      localStorage.setItem('userData', JSON.stringify(userData));
 
-      // Navigate based on role
-      const dashboardPath = (data.user?.role || role) === 'employer' 
-        ? '/employer-dashboard' 
-        : '/employee-dashboard';
+      const dashboardPath =
+        userData.role === 'employer' ? '/employer-dashboard' : '/employee-dashboard';
       navigate(dashboardPath);
-      
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
       console.error('Login error:', err);
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -114,21 +97,13 @@ export default function LandingPage() {
       return;
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
     try {
       setIsLoading(true);
-      // Simulate API call to send OTP
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, you would send an OTP to the user's email
+      await new Promise(resolve => setTimeout(resolve, 1000)); // simulate delay
       setOtpSent(true);
-      setError('An OTP has been sent to your email. Please check and enter it below.');
+      setError('OTP sent to your email!');
     } catch (err) {
-      setError('Failed to send OTP. Please try again.');
+      setError('Failed to send OTP. Try again.');
     } finally {
       setIsLoading(false);
     }
@@ -136,17 +111,12 @@ export default function LandingPage() {
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
-    
+
     if (!otp || !newPassword || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
-    
-    if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-    
+
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -154,23 +124,20 @@ export default function LandingPage() {
 
     try {
       setIsLoading(true);
-      // Simulate API call to verify OTP and reset password
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, you would verify OTP and update password in backend
-      setError('Password reset successfully! You can now login with your new password.');
-      setPassword(newPassword);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // simulate delay
+      setError('Password reset successfully!');
       setShowForgotPassword(false);
       setOtpSent(false);
       setOtp('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      setError('Invalid OTP or failed to reset password');
+      setError('Failed to reset password. Try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
 
   // Rest of your component remains the same...
   return (
