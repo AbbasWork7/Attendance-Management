@@ -1,5 +1,3 @@
-// src/Pages/EmployerDashboard/AddEmployee.jsx
-
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -7,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubscription } from "./SubscriptionContext";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = "https://vtraco.onrender.com";
 
 export default function AddEmployee() {
   const { isSubscribed, useEmployeeSlot, addCandidate } = useSubscription();
@@ -38,17 +36,33 @@ export default function AddEmployee() {
       return;
     }
 
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      toast.error("🔒 Login expired. Please log in again.");
+      navigate("/Landing");
+      return;
+    }
+
     try {
-      const response = await axios.post(`${BASE_URL}/api/users/add-employee/`, {
-        employee_name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        dob: formData.DOB,
-        company_name: formData.company_name,
-        designation: formData.designation,
-        salary: formData.salary,
-        joining_date: new Date().toISOString().split("T")[0], // yyyy-mm-dd
-      });
+      const response = await axios.post(
+        `${BASE_URL}/api/users/add-employee/`,
+        {
+          employee_name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          dob: formData.DOB,
+          company_name: formData.company_name,
+          designation: formData.designation,
+          salary: formData.salary,
+          joining_date: new Date().toISOString().split("T")[0],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status === 201 || response.status === 200) {
         toast.success("✅ Employee added successfully!");
@@ -71,14 +85,22 @@ export default function AddEmployee() {
           salary: "",
         });
       } else {
-        toast.error(" Failed to add employee. Try again.");
+        toast.error("❌ Failed to add employee. Please try again.");
       }
     } catch (error) {
       console.error("API Error:", error);
+
       if (error.response) {
-        toast.error(`${error.response.data.message || "Failed to add employee."}`);
+        if (error.response.status === 401) {
+          toast.error("🔐 Unauthorized. Please log in again.");
+          navigate("/login");
+        } else {
+          toast.error(
+            error.response.data.message || "❌ Something went wrong."
+          );
+        }
       } else {
-        toast.error(" Network error. Server might be offline.");
+        toast.error("🌐 Network error. Server might be offline.");
       }
     }
   };
@@ -172,7 +194,7 @@ export default function AddEmployee() {
         </button>
       </form>
 
-      {/* 🔔 Popup for no wallet balance */}
+      {/* Wallet popup */}
       <AnimatePresence>
         {showPopup && (
           <motion.div
