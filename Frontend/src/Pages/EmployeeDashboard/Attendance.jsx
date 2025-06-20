@@ -1,10 +1,10 @@
-// src/Pages/EmployeeDashboard/Attendance.jsx
-
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Attendance() {
   const today = new Date();
@@ -32,17 +32,17 @@ export default function Attendance() {
           isHalfDay
         }
       }));
-      toast.success(' Successfully Logged Out!', { duration: 3000 });
+      toast.success('Successfully Logged Out!', { duration: 3000 });
     }
   }, [uploadSuccess, logoutTime]);
 
   const handleLogin = async () => {
     const now = new Date();
-    const formattedDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    const formattedDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
     const formattedTime = now.toTimeString().slice(0, 5); // HH:MM
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/employee/attendance/login/', {
+      const response = await axios.post(`${BASE_URL}/employee/attendance/login/`, {
         date: formattedDate,
         time: formattedTime,
       });
@@ -53,39 +53,42 @@ export default function Attendance() {
           date: now.toLocaleDateString(),
           day: now.toLocaleDateString('en-US', { weekday: 'long' })
         });
-        toast.success(' Login time recorded!');
+        toast.success('Login time recorded!');
       } else {
-        toast.error(' Failed to record login time.');
+        toast.error('Failed to record login time.');
       }
     } catch (error) {
       console.error('Login API Error:', error);
-      toast.error(' Error logging attendance.');
+      toast.error('Error logging attendance.');
     }
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
-      toast.error(' Invalid file type.');
+      toast.error('Invalid file type.');
       return;
     }
+
     if (file.size > 1024 * 1024) {
-      toast.error(' File size must be ≤ 1MB.');
+      toast.error('File size must be ≤ 1MB.');
       return;
     }
+
     setEodFile(file);
     setUploadSuccess(true);
   };
 
   const handleLogout = async () => {
     if (!eodFile || !eodReport.trim()) {
-      toast.error('⚠️ Please upload your EOD file and enter a report.');
+      toast.error('Please upload your EOD file and enter a report.');
       return;
     }
 
     const now = new Date();
-    const formattedDate = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    const formattedDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
 
     const formData = new FormData();
     formData.append('date', formattedDate);
@@ -93,26 +96,22 @@ export default function Attendance() {
     formData.append('document', eodFile);
 
     try {
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/employee/attendance/logout/',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+      const response = await axios.put(`${BASE_URL}/employee/attendance/logout/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       if (response.status === 200 || response.status === 201) {
         const logoutTimeStr = now.toLocaleTimeString();
         setLogoutTime(logoutTimeStr);
-        toast.success(` Logged out at ${logoutTimeStr}`);
+        toast.success(`Logged out at ${logoutTimeStr}`);
       } else {
-        toast.error(' Failed to log out.');
+        toast.error('Failed to log out.');
       }
     } catch (error) {
       console.error('Logout API Error:', error);
-      toast.error(' Error while logging out.');
+      toast.error('Error while logging out.');
     }
   };
 
@@ -193,7 +192,7 @@ export default function Attendance() {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-sm"
                   />
                   {uploadSuccess && (
-                    <p className="text-green-600 text-sm"> File uploaded successfully.</p>
+                    <p className="text-green-600 text-sm">✅ File uploaded successfully.</p>
                   )}
                   <button
                     onClick={handleLogout}
@@ -207,7 +206,7 @@ export default function Attendance() {
 
               {logoutTime && (
                 <p className="text-green-600 font-semibold">
-                   Logged out at: {logoutTime}
+                  ✅ Logged out at: {logoutTime}
                 </p>
               )}
             </div>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function Requests() {
-  const [type, setType] = useState('leave'); // match with API: "leave", "wfh", etc.
+  const [type, setType] = useState('leave'); // "leave", "wfh", "other"
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
 
@@ -10,20 +12,20 @@ export default function Requests() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/employee/employee-request/', {
+      const response = await axios.post(`${BASE_URL}/employee/employee-request/`, {
         request_type: type,
         reason: message,
       });
 
       if (response.status === 200 || response.status === 201) {
-        setStatus(' Request submitted successfully!');
+        setStatus('✅ Request submitted successfully!');
         setMessage('');
       } else {
-        setStatus(' Failed to submit request.');
+        setStatus('⚠️ Failed to submit request.');
       }
     } catch (error) {
       console.error('API Error:', error);
-      setStatus(' An error occurred while submitting.');
+      setStatus('❌ An error occurred while submitting.');
     }
   };
 
