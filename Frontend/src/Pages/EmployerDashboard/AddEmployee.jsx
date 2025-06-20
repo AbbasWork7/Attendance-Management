@@ -1,10 +1,13 @@
 // src/Pages/EmployerDashboard/AddEmployee.jsx
 
 import React, { useState } from "react";
-import { useSubscription } from "./SubscriptionContext";
+import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSubscription } from "./SubscriptionContext";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function AddEmployee() {
   const { isSubscribed, useEmployeeSlot, addCandidate } = useSubscription();
@@ -14,6 +17,8 @@ export default function AddEmployee() {
     name: "",
     email: "",
     phone: "",
+    DOB: "",
+    company_name: "TechNova Pvt Ltd",
     designation: "",
     salary: "",
   });
@@ -25,39 +30,57 @@ export default function AddEmployee() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isSubscribed) {
-      setShowPopup(true); // Show popup if wallet has no balance
+      setShowPopup(true);
       return;
     }
 
-    const employeeData = {
-      ...formData,
-      joinDate: new Date().toISOString(), // Real-time join date (not shown in UI)
-    };
+    try {
+      const response = await axios.post(`${BASE_URL}/api/users/add-employee/`, {
+        employee_name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        dob: formData.DOB,
+        company_name: formData.company_name,
+        designation: formData.designation,
+        salary: formData.salary,
+        joining_date: new Date().toISOString().split("T")[0], // yyyy-mm-dd
+      });
 
-    // Simulate backend API call
-    console.log("Cnadidate Submitted:", employeeData);
+      if (response.status === 201 || response.status === 200) {
+        toast.success("✅ Employee added successfully!");
 
-    useEmployeeSlot(); // Reduce wallet balance
-    addCandidate({
-      id: Date.now(),
-      name: formData.name,
-      onboardDate: new Date().toLocaleDateString(),
-      expiry: Date.now() + 30 * 24 * 60 * 60 * 1000,
-    });
+        useEmployeeSlot();
+        addCandidate({
+          id: Date.now(),
+          name: formData.name,
+          onboardDate: new Date().toLocaleDateString(),
+          expiry: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        });
 
-    toast.success("✅ Employee added and subscribed for 30 days!");
-
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      designation: "",
-      salary: "",
-    });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          DOB: "",
+          company_name: "TechNova Pvt Ltd",
+          designation: "",
+          salary: "",
+        });
+      } else {
+        toast.error(" Failed to add employee. Try again.");
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      if (error.response) {
+        toast.error(`${error.response.data.message || "Failed to add employee."}`);
+      } else {
+        toast.error(" Network error. Server might be offline.");
+      }
+    }
   };
 
   return (
@@ -88,11 +111,11 @@ export default function AddEmployee() {
             className="w-full border border-blue-300 px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        
+
         <div>
           <label className="block font-medium mb-1">DOB</label>
           <input
-            type="DOB"
+            type="date"
             name="DOB"
             required
             value={formData.DOB}
@@ -107,9 +130,9 @@ export default function AddEmployee() {
             type="tel"
             name="phone"
             required
+            pattern="[0-9]{10}"
             value={formData.phone}
             onChange={handleChange}
-            pattern="[0-9]{10}"
             className="w-full border border-blue-300 px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -149,7 +172,7 @@ export default function AddEmployee() {
         </button>
       </form>
 
-      {/* 🔔 Animated Alert Popup */}
+      {/* 🔔 Popup for no wallet balance */}
       <AnimatePresence>
         {showPopup && (
           <motion.div
@@ -173,7 +196,7 @@ export default function AddEmployee() {
               <button
                 onClick={() => {
                   setShowPopup(false);
-                  navigate("/employer-dashboard"); // 👈 Navigate to Wallet/Dashboard
+                  navigate("/employer-dashboard");
                 }}
                 className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
               >

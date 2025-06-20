@@ -1,30 +1,74 @@
 // src/Pages/EmployerDashboard/Notification.jsx
 
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { motion } from "framer-motion";
 import { FaBell } from "react-icons/fa";
+import toast from "react-hot-toast";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Notification() {
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [reply, setReply] = useState({}); // holds messages by ID
 
-  // Simulate fetching requests from backend (replace with actual API later)
   useEffect(() => {
-    const sampleData = [
-      {
-        id: 1,
-        name: "John Doe",
-        message: "Requesting half-day leave on June 22",
-        time: "2025-06-19T10:15:00",
-      },
-      {
-        id: 2,
-        name: "Sara Khan",
-        message: "Need system access reset",
-        time: "2025-06-18T17:42:00",
-      },
-    ];
-    setNotifications(sampleData);
+    const fetchNotifications = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/employer/notifications/`);
+        if (res.data.status === "success") {
+          setNotifications(res.data.notifications);
+        } else {
+          toast.error("❌ Failed to load notifications.");
+        }
+      } catch (err) {
+        toast.error("❌ Error loading data.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
   }, []);
+
+  const handleReplyChange = (id, value) => {
+    setReply((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleResponse = async (id, status) => {
+    const message = reply[id]?.trim();
+    if (!message) {
+      toast.error("Please add a message before responding.");
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${BASE_URL}/api/employer/notifications/respond/`, {
+        notification_id: id,
+        status: status,
+        response_message: message,
+      });
+
+      if (res.data.status === "success") {
+        toast.success(`✅ ${status === "approved" ? "Approved" : "Declined"} successfully!`);
+
+        // Remove from UI or update status
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        setReply((prev) => {
+          const newReply = { ...prev };
+          delete newReply[id];
+          return newReply;
+        });
+      } else {
+        toast.error("❌ Failed to submit response.");
+      }
+    } catch (err) {
+      toast.error("❌ Server error.");
+      console.error(err);
+    }
+  };
 
   return (
     <motion.div
@@ -38,7 +82,9 @@ export default function Notification() {
         Notifications
       </div>
 
-      {notifications.length === 0 ? (
+      {loading ? (
+        <p className="text-gray-500">Loading...</p>
+      ) : notifications.length === 0 ? (
         <p className="text-gray-500 mt-4">No new requests.</p>
       ) : (
         <ul className="space-y-4">
@@ -50,7 +96,30 @@ export default function Notification() {
               <div className="font-semibold text-blue-800">{note.name}</div>
               <div className="text-sm text-gray-700 mt-1">{note.message}</div>
               <div className="text-xs text-gray-500 mt-1">
-                {new Date(note.time).toLocaleString()}
+                {new Date(note.time || note.created_at).toLocaleString()}
+              </div>
+
+              <textarea
+                rows={2}
+                placeholder="Write a response..."
+                value={reply[note.id] || ""}
+                onChange={(e) => handleReplyChange(note.id, e.target.value)}
+                className="w-full mt-3 p-2 border border-gray-300 rounded"
+              />
+
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => handleResponse(note.id, "approved")}
+                  className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
+                >
+                  ✅ Approve
+                </button>
+                <button
+                  onClick={() => handleResponse(note.id, "declined")}
+                  className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
+                >
+                  ❌ Decline
+                </button>
               </div>
             </li>
           ))}
