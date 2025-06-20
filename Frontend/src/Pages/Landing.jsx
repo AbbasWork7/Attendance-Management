@@ -12,8 +12,6 @@ import CookiePolicy from './Cookiepolicy';
 import TermsOfService from './TermsOfService';
 import PricingPolicy from './PricingPolicy';
 
-
-
 const partnerLogos = [
   { name: 'TechCorp', logo: companyLogo },
   { name: 'InnovateInc', logo: companyLogo },
@@ -39,12 +37,12 @@ export default function LandingPage() {
   const [showCookiePolicy, setShowCookiePolicy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPricingPolicy, setShowPricingPolicy] = useState(false);
-  
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     
+    // Validation
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
@@ -62,14 +60,49 @@ export default function LandingPage() {
 
     try {
       setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // In a real app, you would verify credentials with your backend
-      setUser({ username: email, role });
-      navigate(role === 'employer' ? '/employer-dashboard' : '/employee-dashboard');
+      const response = await fetch('http://127.0.0.1:8000/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed. Please check your credentials.');
+      }
+
+      // Store user data and token
+      setUser({ 
+        username: data.user?.name || email,
+        email: email,
+        role: data.user?.role || role,
+        token: data.token 
+      });
+
+      // Store token in localStorage for persistent sessions
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userData', JSON.stringify({
+        username: data.user?.name || email,
+        email: email,
+        role: data.user?.role || role
+      }));
+
+      // Navigate based on role
+      const dashboardPath = (data.user?.role || role) === 'employer' 
+        ? '/employer-dashboard' 
+        : '/employee-dashboard';
+      navigate(dashboardPath);
+      
     } catch (err) {
-      setError('Invalid email or password');
+      setError(err.message || 'Login failed. Please try again.');
+      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -139,6 +172,7 @@ export default function LandingPage() {
     }
   };
 
+  // Rest of your component remains the same...
   return (
     <div className="min-h-screen bg-white text-blue-900">
       {/* Header */}
@@ -181,12 +215,12 @@ export default function LandingPage() {
           id="home"
           className="min-h-screen flex flex-col md:flex-row items-center justify-center px-6 py-20 space-y-10 md:space-y-0 md:space-x-10 relative overflow-hidden"
         >
-        {/* Background Image with Overlay */}
-<div 
-  className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-  style={{ backgroundImage: `url(${landingpic})` }}  // ✅ fixed: use backticks here
-/>
-<div className="absolute inset-0 bg-blue-50/30 backdrop-blur-sm z-10" />
+          {/* Background Image with Overlay */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+            style={{ backgroundImage: `url(${landingpic})` }}
+          />
+          <div className="absolute inset-0 bg-blue-50/30 backdrop-blur-sm z-10" />
 
           {/* Left Welcome Section */}
           <motion.div
@@ -455,7 +489,7 @@ export default function LandingPage() {
               <div>
                 <h3 className="text-2xl font-bold mb-6 text-blue-900">Get in Touch</h3>
                 <p className="mb-6 text-blue-700">
-                  Let’s build smarter teams together.
+                  Let's build smarter teams together.
 Contact us now and start your journey with Vtraco!
                 </p>
                 
@@ -467,7 +501,7 @@ Contact us now and start your journey with Vtraco!
                     </svg>
                     <div>
                       <h4 className="font-bold text-blue-900">Address</h4>
-                      <p className="text-blue-700">No.3, 3rd street, Rajeswari nagar, S.Kolathur<br />TChennai - 600091</p>
+                      <p className="text-blue-700">No.3, 3rd street, Rajeswari nagar, S.Kolathur<br />Chennai - 600091</p>
                     </div>
                   </div>
                   
@@ -487,7 +521,7 @@ Contact us now and start your journey with Vtraco!
                     </svg>
                     <div>
                       <h4 className="font-bold text-blue-900">Email</h4>
-                      <p className="text-blue-700"> vtraco.official@gmail.com</p>
+                      <p className="text-blue-700">vtraco.official@gmail.com</p>
                     </div>
                   </div>
                 </div>
@@ -567,147 +601,143 @@ Contact us now and start your journey with Vtraco!
               <ul className="space-y-2 text-sm">
                 <li>
                   <button 
-                  onClick={() => setShowPrivacyPolicy(true)} 
-                  className="hover:text-blue-600 transition text-left"
+                    onClick={() => setShowPrivacyPolicy(true)} 
+                    className="hover:text-blue-600 transition text-left"
                   >
-                  Privacy Policy
+                    Privacy Policy
                   </button>
-                  </li>
-                  {showPrivacyPolicy && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      <div className="p-6">
-        {/* Header with Close Button */}
-        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
-          <h2 className="text-2xl font-bold text-blue-900">Privacy Policy</h2>
-          <button 
-            onClick={() => setShowPrivacyPolicy(false)}
-            className="text-gray-500 hover:text-gray-700 p-1"
-          >
-            ✕ {/* Or use an SVG icon */}
-          </button>
-        </div>
-
-        {/* Privacy Policy Content */}
-        <PrivacyPolicy />
-
-        {/* Close Button at Bottom */}
-        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
-          <button
-            onClick={() => setShowPrivacyPolicy(false)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                </li>
+                {showPrivacyPolicy && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                      <div className="p-6">
+                        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
+                          <h2 className="text-2xl font-bold text-blue-900">Privacy Policy</h2>
+                          <button 
+                            onClick={() => setShowPrivacyPolicy(false)}
+                            className="text-gray-500 hover:text-gray-700 p-1"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <PrivacyPolicy />
+                        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
+                          <button
+                            onClick={() => setShowPrivacyPolicy(false)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <li>
                   <button 
-                  onClick={() => setShowTerms(true)} 
-                  className="hover:text-blue-600 transition text-left"
-                >
-                  Terms of Service
-                </button>
-              </li>{showTerms && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
-          <h2 className="text-2xl font-bold text-blue-900">Terms of Service</h2>
-          <button 
-            onClick={() => setShowTerms(false)}
-            className="text-gray-500 hover:text-gray-700 p-1"
-          >
-            ✕
-          </button>
-        </div>
-        <TermsOfService />
-        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
-          <button
-            onClick={() => setShowTerms(false)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                    onClick={() => setShowTerms(true)} 
+                    className="hover:text-blue-600 transition text-left"
+                  >
+                    Terms of Service
+                  </button>
+                </li>
+                {showTerms && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                      <div className="p-6">
+                        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
+                          <h2 className="text-2xl font-bold text-blue-900">Terms of Service</h2>
+                          <button 
+                            onClick={() => setShowTerms(false)}
+                            className="text-gray-500 hover:text-gray-700 p-1"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <TermsOfService />
+                        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
+                          <button
+                            onClick={() => setShowTerms(false)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <li>
-                <button 
-                  onClick={() => setShowPricingPolicy(true)} 
-                  className="hover:text-blue-600 transition text-left"
-                >
-                  Pricing Policy
-                </button>
-              </li>
-              {showPricingPolicy && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
-          <h2 className="text-2xl font-bold text-blue-900">Pricing Policy</h2>
-          <button 
-            onClick={() => setShowPricingPolicy(false)}
-            className="text-gray-500 hover:text-gray-700 p-1"
-          >
-            ✕
-          </button>
-        </div>
-        <PricingPolicy />
-        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
-          <button
-            onClick={() => setShowPricingPolicy(false)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                  <button 
+                    onClick={() => setShowPricingPolicy(true)} 
+                    className="hover:text-blue-600 transition text-left"
+                  >
+                    Pricing Policy
+                  </button>
+                </li>
+                {showPricingPolicy && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                      <div className="p-6">
+                        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
+                          <h2 className="text-2xl font-bold text-blue-900">Pricing Policy</h2>
+                          <button 
+                            onClick={() => setShowPricingPolicy(false)}
+                            className="text-gray-500 hover:text-gray-700 p-1"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <PricingPolicy />
+                        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
+                          <button
+                            onClick={() => setShowPricingPolicy(false)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <li>
-                <button 
-                  onClick={() => setShowCookiePolicy(true)} 
-                  className="hover:text-blue-600 transition text-left"
-                >
-                  Cookie Policy
-                </button>
+                  <button 
+                    onClick={() => setShowCookiePolicy(true)} 
+                    className="hover:text-blue-600 transition text-left"
+                  >
+                    Cookie Policy
+                  </button>
                 </li>
                 {showCookiePolicy && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
-          <h2 className="text-2xl font-bold text-blue-900">Cookie Policy</h2>
-          <button 
-            onClick={() => setShowCookiePolicy(false)}
-            className="text-gray-500 hover:text-gray-700 p-1"
-          >
-            ✕
-          </button>
-        </div>
-        <CookiePolicy />
-        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
-          <button
-            onClick={() => setShowCookiePolicy(false)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)} 
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                      <div className="p-6">
+                        <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2">
+                          <h2 className="text-2xl font-bold text-blue-900">Cookie Policy</h2>
+                          <button 
+                            onClick={() => setShowCookiePolicy(false)}
+                            className="text-gray-500 hover:text-gray-700 p-1"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <CookiePolicy />
+                        <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200 mt-4">
+                          <button
+                            onClick={() => setShowCookiePolicy(false)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full sm:w-auto"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )} 
               </ul>
             </div>
             
@@ -719,12 +749,11 @@ Contact us now and start your journey with Vtraco!
                     <BsThreadsFill />
                   </svg>
                 </a>
-                <a href="https://www.instagram.com/vtraco_official?igsh=YWF3Z2ozOGYxZDRs&utm_source=ig_contact_invite " className="hover:text-blue-600 transition"  >
-                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" >
-                  <FaSquareInstagram />
+                <a href="https://www.instagram.com/vtraco_official?igsh=YWF3Z2ozOGYxZDRs&utm_source=ig_contact_invite" className="hover:text-blue-600 transition">
+                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+                    <FaSquareInstagram />
                   </svg>
                 </a>
-                
               </div>
             </div>
           </div>
