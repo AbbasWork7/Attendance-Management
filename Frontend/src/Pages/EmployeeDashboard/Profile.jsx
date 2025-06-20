@@ -1,7 +1,10 @@
 // src/EmployeeDashboard/pages/Profile.jsx
 
 import React, { useState } from 'react';
+import axios from 'axios';
 import { toast } from 'react-hot-toast';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Profile() {
   const [user, setUser] = useState({
@@ -12,6 +15,7 @@ export default function Profile() {
     location: 'Tirunelveli, Tamil Nadu',
     profilePic: null,
   });
+
   const [isEditing, setIsEditing] = useState(false);
   const [profilePicPreview, setProfilePicPreview] = useState(null);
 
@@ -33,12 +37,33 @@ export default function Profile() {
   const handleRemoveProfilePic = () => {
     setUser({ ...user, profilePic: null });
     setProfilePicPreview(null);
-    toast.success(' Profile picture removed');
+    toast.success('Profile picture removed');
   };
 
-  const handleSubmit = () => {
-    setIsEditing(false);
-    toast.success(' Profile updated successfully!');
+  const handleSubmit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('contact', user.phone);
+      if (user.profilePic) {
+        formData.append('profile_picture', user.profilePic);
+      }
+
+      const response = await axios.put(`${BASE_URL}/employee/update-profile/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success('Profile updated successfully!');
+        setIsEditing(false);
+      } else {
+        toast.error('Failed to update profile.');
+      }
+    } catch (error) {
+      console.error('Update profile error:', error);
+      toast.error('Error while updating profile.');
+    }
   };
 
   const missingProfilePic = !user.profilePic;
@@ -57,7 +82,7 @@ export default function Profile() {
             className="w-24 h-24 object-cover rounded-full border border-gray-300"
           />
           {missingProfilePic && (
-            <span className="absolute top-0 right-0 w-3 h-3  rounded-full"></span>
+            <span className="absolute top-0 right-0 w-3 h-3 rounded-full"></span>
           )}
         </div>
       </div>
@@ -107,8 +132,8 @@ export default function Profile() {
             type="email"
             name="email"
             value={user.email}
-          
-            className={`w-full border p-2 rounded bg-gray-100`}
+            disabled
+            className="w-full border p-2 rounded bg-gray-100"
           />
         </div>
         <div>
@@ -139,14 +164,14 @@ export default function Profile() {
             onClick={handleSubmit}
             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
           >
-             Submit
+            ✅ Submit
           </button>
         ) : (
           <button
             onClick={() => setIsEditing(true)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >
-             Edit
+            ✏️ Edit
           </button>
         )}
       </div>

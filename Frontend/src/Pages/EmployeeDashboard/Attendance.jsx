@@ -38,11 +38,11 @@ export default function Attendance() {
 
   const handleLogin = async () => {
     const now = new Date();
-    const formattedDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-    const formattedTime = now.toTimeString().slice(0, 5); // HH:MM
+    const formattedDate = now.toISOString().split('T')[0];
+    const formattedTime = now.toTimeString().slice(0, 5);
 
     try {
-      const response = await axios.post(`${BASE_URL}/employee/attendance/login/`, {
+      const response = await axios.post(`${BASE_URL}/api/employee/attendance/login/`, {
         date: formattedDate,
         time: formattedTime,
       });
@@ -88,7 +88,7 @@ export default function Attendance() {
     }
 
     const now = new Date();
-    const formattedDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+    const formattedDate = now.toISOString().split('T')[0];
 
     const formData = new FormData();
     formData.append('date', formattedDate);
@@ -96,7 +96,7 @@ export default function Attendance() {
     formData.append('document', eodFile);
 
     try {
-      const response = await axios.put(`${BASE_URL}/employee/attendance/logout/`, formData, {
+      const response = await axios.put(`${BASE_URL}/api/employee/attendance/logout/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -1,9 +1,8 @@
-// src/EmployeeDashboard/pages/Notifications.jsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY; // Optional
 
 export default function Notification() {
   const [notifications, setNotifications] = useState([]);
@@ -12,9 +11,15 @@ export default function Notification() {
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/employee/notifications/`)
+      .get(`${BASE_URL}/api/employee/notifications/`, {
+        headers: {
+          ...(API_KEY && { Authorization: `Bearer ${API_KEY}` })
+        }
+      })
       .then((response) => {
-        if (response.data.status === 'success') {
+        if (response.status === 200 && Array.isArray(response.data)) {
+          setNotifications(response.data);
+        } else if (response.data.status === 'success' && Array.isArray(response.data.notifications)) {
           setNotifications(response.data.notifications);
         } else {
           setError('⚠️ Failed to load notifications.');

@@ -12,9 +12,9 @@ export default function Requests() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${BASE_URL}/employee/employee-request/`, {
+      const response = await axios.post(`${BASE_URL}/employee/employee-request`, {
         request_type: type,
-        reason: message,
+        message: message, // updated payload key from "reason" → "message"
       });
 
       if (response.status === 200 || response.status === 201) {

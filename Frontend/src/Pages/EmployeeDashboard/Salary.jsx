@@ -1,71 +1,91 @@
 // src/EmployeeDashboard/pages/Salary.jsx
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-// Sample attendance data (Replace this with actual attendance context/state)
-const attendanceMap = {
-  '2025-06-16': { status: 'full' },
-  '2025-06-17': { status: 'half' },
-  '2025-06-18': { status: 'half' },
-  '2025-06-19': { status: 'absent' },
-  '2025-06-20': { status: 'full' },
-};
-
-const getSalaryFromStatus = (status) => {
-  switch (status) {
-    case 'full':
-      return 1000;
-    case 'half':
-      return 500;
-    case 'absent':
-    default:
-      return 0;
-  }
-};
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Salary() {
-  const attendanceRecords = useMemo(() => {
-    return Object.entries(attendanceMap).map(([date, { status }]) => {
-      return {
-        date,
-        status: status === 'full' ? 'Full Day' : status === 'half' ? 'Half Day' : 'Absent',
-        amount: getSalaryFromStatus(status)
-      };
-    });
-  }, []);
+  const [records, setRecords] = useState([]);
+  const [totalSalary, setTotalSalary] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const totalSalary = attendanceRecords.reduce((acc, curr) => acc + curr.amount, 0);
+  useEffect(() => {
+    const fetchSalaryRecords = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/employee/employee_salary/`);
+        const data = response.data;
+
+        const formatted = data.map((item) => {
+          const { date, status } = item;
+          const salary =
+            status === 'full'
+              ? 1000
+              : status === 'half'
+              ? 500
+              : 0;
+
+          return {
+            date,
+            status: status === 'full' ? 'Full Day' : status === 'half' ? 'Half Day' : 'Absent',
+            amount: salary,
+          };
+        });
+
+        const total = formatted.reduce((acc, item) => acc + item.amount, 0);
+
+        setRecords(formatted);
+        setTotalSalary(total);
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch salary data:', err);
+        setError('Failed to load salary records.');
+        setLoading(false);
+      }
+    };
+
+    fetchSalaryRecords();
+  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 text-blue-900 transition-all">
-      <h2 className="text-2xl font-semibold mb-4"> Salary Summary</h2>
-      <p className="text-sm mb-6">This section displays your attendance-based daily salary breakdown. Default salary per day is ₹1000 and ₹500 for half day.</p>
+      <h2 className="text-2xl font-semibold mb-4">💰 Salary Summary</h2>
+      <p className="text-sm mb-6">
+        Your attendance-based salary. ₹1000 for full day, ₹500 for half day.
+      </p>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm border rounded-xl">
-          <thead className="bg-blue-50">
-            <tr>
-              <th className="p-2 text-left">📅 Date</th>
-              <th className="p-2 text-left">🧾 Attendance</th>
-              <th className="p-2 text-left">💵 Salary</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {attendanceRecords.map(({ date, status, amount }) => (
-              <tr key={date}>
-                <td className="p-2">{date}</td>
-                <td className="p-2">{status}</td>
-                <td className="p-2">₹ {amount}</td>
+      {loading ? (
+        <p className="text-gray-500">Loading salary records...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm border rounded-xl">
+            <thead className="bg-blue-50">
+              <tr>
+                <th className="p-2 text-left">📅 Date</th>
+                <th className="p-2 text-left">🧾 Attendance</th>
+                <th className="p-2 text-left">💵 Salary</th>
               </tr>
-            ))}
-            <tr className="bg-gray-100 font-semibold">
-              <td className="p-2">Total</td>
-              <td className="p-2"></td>
-              <td className="p-2">₹ {totalSalary}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y">
+              {records.map(({ date, status, amount }) => (
+                <tr key={date}>
+                  <td className="p-2">{date}</td>
+                  <td className="p-2">{status}</td>
+                  <td className="p-2">₹ {amount}</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-100 font-semibold">
+                <td className="p-2">Total</td>
+                <td className="p-2"></td>
+                <td className="p-2">₹ {totalSalary}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
