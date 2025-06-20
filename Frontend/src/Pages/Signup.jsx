@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import logo from '../assets/image/logo.png';
 import illustration from '../assets/image/signup-illustration.png';
 
+const BASE_URL = 'https://vtraco.onrender.com';
+
 export default function Signup() {
   const [formData, setFormData] = useState({
     username: '',
@@ -18,7 +20,7 @@ export default function Signup() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (error) setError('');
+    setError('');
   };
 
   const validateForm = () => {
@@ -52,15 +54,14 @@ export default function Signup() {
     if (!validateForm()) return;
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/signup/', {
+      const response = await fetch(`${BASE_URL}/api/users/signup/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: formData.username,
           email: formData.email,
           password: formData.password,
-          confirm_password: formData.confirmPassword,
-          role_id: 2, // ✅ Default role as Employee
+          role_id: 2, // ✅ Default: Employee role
         }),
       });
 
@@ -70,39 +71,39 @@ export default function Signup() {
         console.log('✅ Signup success:', data);
         navigate('/Landing');
       } else {
-        setError(data.detail || 'Signup failed. Please try again.');
+        setError(data.detail || data.message || 'Signup failed. Please try again.');
       }
     } catch (err) {
       console.error('Signup error:', err);
-      setError('Something went wrong. Please try again.');
+      setError('🌐 Network error. Backend might be down or DevTunnel not active.');
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left Side - Illustration */}
+      {/* Illustration */}
       <div className="hidden md:block w-full md:w-1/2 bg-blue-50 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, x: '100%' }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8 }}
           className="h-full w-full bg-cover bg-center"
           style={{ backgroundImage: `url(${illustration})` }}
         />
       </div>
 
-      {/* Right Side - Form */}
+      {/* Form Section */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-6 bg-white">
         <motion.div
           initial={{ opacity: 0, x: '-100%' }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8 }}
           className="w-full max-w-md bg-white rounded-xl p-6 md:p-8"
         >
           <div className="text-center mb-6">
             <img src={logo} alt="Logo" className="mx-auto h-16 w-16 mb-3" />
             <h2 className="text-2xl font-bold text-blue-900">Create an Account</h2>
-            <p className="text-sm text-blue-700">Let's set up your profile</p>
+            <p className="text-sm text-blue-700">Let’s set up your profile</p>
           </div>
 
           {error && (
@@ -133,7 +134,7 @@ export default function Signup() {
               name="password"
               type="password"
               value={formData.password}
-              placeholder="Enter password (min 8 characters)"
+              placeholder="Enter password"
               onChange={handleChange}
             />
             <InputField
