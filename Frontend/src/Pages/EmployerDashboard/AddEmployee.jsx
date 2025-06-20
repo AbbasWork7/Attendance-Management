@@ -39,7 +39,7 @@ export default function AddEmployee() {
     };
 
     // Simulate backend API call
-    console.log("Employee Submitted:", employeeData);
+    console.log("Cnadidate Submitted:", employeeData);
 
     useEmployeeSlot(); // Reduce wallet balance
     addCandidate({
@@ -84,6 +84,18 @@ export default function AddEmployee() {
             name="email"
             required
             value={formData.email}
+            onChange={handleChange}
+            className="w-full border border-blue-300 px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        
+        <div>
+          <label className="block font-medium mb-1">DOB</label>
+          <input
+            type="DOB"
+            name="DOB"
+            required
+            value={formData.DOB}
             onChange={handleChange}
             className="w-full border border-blue-300 px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
           />

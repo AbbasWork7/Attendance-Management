@@ -40,7 +40,7 @@ const EmployeeDetails = () => {
       transition={{ duration: 0.5 }}
     >
       <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold whitespace-nowrap">👥 Employee Details</h2>
+        <h2 className="text-2xl font-bold whitespace-nowrap">👥 Candidate Details</h2>
         <div className="relative w-full sm:w-auto">
           <FiSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
           <input

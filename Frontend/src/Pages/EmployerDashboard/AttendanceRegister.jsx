@@ -97,7 +97,7 @@ export default function AttendanceRequest() {
         <table className="min-w-full text-center">
           <thead className="bg-blue-100 text-blue-800 font-semibold">
             <tr>
-              <th className="p-2">Employee</th>
+              <th className="p-2">Candidate</th>
               <th>Profile</th>
               <th>Login</th>
               <th>Logout</th>
