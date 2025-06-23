@@ -4,7 +4,7 @@ import 'react-calendar/dist/Calendar.css';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = 'http://127.0.0.1:8000';
 
 export default function Attendance() {
   const today = new Date();
@@ -17,6 +17,7 @@ export default function Attendance() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [attendanceMap, setAttendanceMap] = useState({});
 
+  const token = localStorage.getItem('token'); // 🔐 Get JWT token
   const isToday = date.toDateString() === todayStr;
 
   useEffect(() => {
@@ -29,8 +30,8 @@ export default function Attendance() {
         ...prev,
         [key]: {
           status: 'pending',
-          isHalfDay
-        }
+          isHalfDay,
+        },
       }));
       toast.success('Successfully Logged Out!', { duration: 3000 });
     }
@@ -42,16 +43,24 @@ export default function Attendance() {
     const formattedTime = now.toTimeString().slice(0, 5);
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/employee/attendance/login/`, {
-        date: formattedDate,
-        time: formattedTime,
-      });
+      const response = await axios.post(
+        `${BASE_URL}/api/employee/attendance/login/`,
+        {
+          date: formattedDate,
+          time: formattedTime,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 200 || response.status === 201) {
         setLoginInfo({
           time: now.toLocaleTimeString(),
           date: now.toLocaleDateString(),
-          day: now.toLocaleDateString('en-US', { weekday: 'long' })
+          day: now.toLocaleDateString('en-US', { weekday: 'long' }),
         });
         toast.success('Login time recorded!');
       } else {
@@ -59,7 +68,7 @@ export default function Attendance() {
       }
     } catch (error) {
       console.error('Login API Error:', error);
-      toast.error('Error logging attendance.');
+      toast.error('Unauthorized. Please login again.');
     }
   };
 
@@ -67,7 +76,9 @@ export default function Attendance() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+    if (
+      !['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)
+    ) {
       toast.error('Invalid file type.');
       return;
     }
@@ -96,11 +107,16 @@ export default function Attendance() {
     formData.append('document', eodFile);
 
     try {
-      const response = await axios.put(`${BASE_URL}/api/employee/attendance/logout/`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.put(
+        `${BASE_URL}/api/employee/attendance/logout/`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 200 || response.status === 201) {
         const logoutTimeStr = now.toLocaleTimeString();
@@ -111,7 +127,7 @@ export default function Attendance() {
       }
     } catch (error) {
       console.error('Logout API Error:', error);
-      toast.error('Error while logging out.');
+      toast.error('Unauthorized. Please login again.');
     }
   };
 
@@ -141,6 +157,7 @@ export default function Attendance() {
       <h2 className="text-3xl font-bold mb-6">Attendance Log</h2>
 
       <div className="grid md:grid-cols-2 gap-6">
+        {/* 📅 Calendar Section */}
         <div className="bg-blue-50 rounded-xl p-4 shadow">
           <Calendar
             onChange={setDate}
@@ -157,6 +174,7 @@ export default function Attendance() {
           </div>
         </div>
 
+        {/* 📝 Attendance Actions */}
         <div className="space-y-4">
           {isToday && !loginInfo && (
             <button
@@ -184,7 +202,7 @@ export default function Attendance() {
                     placeholder="e.g. Completed API integrations..."
                   />
 
-                  <label className="block text-sm font-medium text-gray-700">Upload EOD File (PDF/DOC only)</label>
+                  <label className="block text-sm font-medium text-gray-700">Upload EOD File (PDF/DOC)</label>
                   <input
                     type="file"
                     onChange={handleFileUpload}
@@ -194,9 +212,12 @@ export default function Attendance() {
                   {uploadSuccess && (
                     <p className="text-green-600 text-sm">✅ File uploaded successfully.</p>
                   )}
+
                   <button
                     onClick={handleLogout}
-                    className={`bg-red-500 text-white px-6 py-2 rounded-lg mt-2 hover:bg-red-600 transition ${(!uploadSuccess || !eodReport.trim()) && 'opacity-50 cursor-not-allowed'}`}
+                    className={`bg-red-500 text-white px-6 py-2 rounded-lg mt-2 hover:bg-red-600 transition ${
+                      (!uploadSuccess || !eodReport.trim()) && 'opacity-50 cursor-not-allowed'
+                    }`}
                     disabled={!uploadSuccess || !eodReport.trim()}
                   >
                     🔒 Logout
