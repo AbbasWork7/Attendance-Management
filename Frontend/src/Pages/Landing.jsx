@@ -11,8 +11,7 @@ import PricingPolicy from './PricingPolicy';
 import { FaSquareInstagram } from "react-icons/fa6";
 import { BsThreadsFill } from "react-icons/bs";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/';
-
+const BASE_URL = 'http://127.0.0.1:8000/';
 
 const partnerLogos = [
   { name: 'TechCorp', logo: companyLogo },
@@ -37,7 +36,6 @@ export default function LandingPage() {
   const [showTerms, setShowTerms] = useState(false);
   const [showPricingPolicy, setShowPricingPolicy] = useState(false);
 
-  // ✅ Forgot Password Related States
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
@@ -47,7 +45,7 @@ export default function LandingPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-   console.log("Login API URL:", `${BASE_URL}/api/users/login`);
+    console.log("Login API URL:", `${BASE_URL}api/users/login/`);
 
     if (!email || !password) {
       setError('Please fill in all fields');
@@ -57,7 +55,7 @@ export default function LandingPage() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${BASE_URL}api/users/login/`,  {
+      const response = await fetch(`${BASE_URL}api/users/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -72,12 +70,15 @@ export default function LandingPage() {
       const userData = {
         username: data.user?.username || email,
         email: email,
-        role: data.user?.role || role,
-        token: data.token,
+        role: data.user?.role_id === 2 ? 'employer' : 'employee',
+        user_id: data.user?.user_id,
       };
 
       setUser(userData);
-      localStorage.setItem('authToken', data.token);
+
+      // ✅ Store access & refresh tokens correctly
+      localStorage.setItem('access_token', data.tokens.access);
+      localStorage.setItem('refresh_token', data.tokens.refresh);
       localStorage.setItem('userData', JSON.stringify(userData));
 
       const dashboardPath =

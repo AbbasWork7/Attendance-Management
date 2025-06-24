@@ -7,6 +7,7 @@ import logo from '../assets/image/logo.png';
 import illustration from '../assets/image/signup-illustration.png';
 
 const BASE_URL = 'http://127.0.0.1:8000';
+const SIGNUP_URL = `${BASE_URL}/api/users/signup/`;
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -33,7 +34,8 @@ export default function Signup() {
       return false;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
       return false;
     }
@@ -56,14 +58,16 @@ export default function Signup() {
     if (!validateForm()) return;
 
     try {
-      const response = await fetch(`${BASE_URL}/api/users/signup/`, {
+      const response = await fetch(SIGNUP_URL.trim(), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
+          username: formData.username.trim(),
+          email: formData.email.trim(),
           password: formData.password,
-          role_id: 2, 
+          role_id: 2, // Employer
         }),
       });
 
@@ -73,7 +77,7 @@ export default function Signup() {
         console.log('✅ Signup success:', data);
         navigate('/Landing');
       } else {
-        setError(data.detail || data.message || 'Signup failed. Please try again.');
+        setError(data.message || data.detail || 'Signup failed. Please try again.');
       }
     } catch (err) {
       console.error('Signup error:', err);
