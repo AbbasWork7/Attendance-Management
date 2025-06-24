@@ -3,6 +3,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 <<<<<<< HEAD
 const BASE_URL ='http://127.0.0.1:8000/' ;
@@ -20,9 +21,16 @@ export default function Attendance() {
   const [eodFile, setEodFile] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [attendanceMap, setAttendanceMap] = useState({});
+  const [menuOpen, setMenuOpen] = useState(false); // mobile toggle
 
-  const token = localStorage.getItem('token'); // 🔐 Get JWT token
+  const token = localStorage.getItem('token');
   const isToday = date.toDateString() === todayStr;
+  const navigate = useNavigate();
+
+  const handleMobileNav = (path) => {
+    setMenuOpen(false);
+    navigate(path);
+  };
 
   useEffect(() => {
     if (uploadSuccess && logoutTime && loginInfo) {
@@ -49,15 +57,8 @@ export default function Attendance() {
     try {
       const response = await axios.post(
         `${BASE_URL}/api/employee/attendance/login/`,
-        {
-          date: formattedDate,
-          time: formattedTime,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { date: formattedDate, time: formattedTime },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.status === 200 || response.status === 201) {
@@ -157,11 +158,42 @@ export default function Attendance() {
   };
 
   return (
-    <div className="relative bg-white rounded-xl shadow-md p-6 text-blue-900 animate-fade-in">
-      <h2 className="text-3xl font-bold mb-6">Attendance Log</h2>
+    <div className="relative bg-white rounded-xl shadow-md p-4 md:p-6 text-blue-900 animate-fade-in">
+      {/* Mobile Header */}
+      <div className="md:hidden flex justify-between items-center bg-white px-4 py-3 shadow mb-4 sticky top-0 z-40">
+        <h2 className="text-lg font-bold text-blue-900">Attendance Log</h2>
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="text-blue-900 text-2xl"
+        >
+          ☰
+        </button>
+      </div>
 
+      {/* Mobile Dropdown Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-blue-50 rounded-md shadow p-3 space-y-2 mb-4">
+          <button onClick={() => handleMobileNav('/employee-dashboard/attendance')} className="block w-full text-left px-3 py-2 hover:bg-blue-100 rounded">
+            Attendance
+          </button>
+          <button onClick={() => handleMobileNav('/employee-dashboard/salary')} className="block w-full text-left px-3 py-2 hover:bg-blue-100 rounded">
+            Salary
+          </button>
+          <button onClick={() => handleMobileNav('/employee-dashboard/requests')} className="block w-full text-left px-3 py-2 hover:bg-blue-100 rounded">
+            Requests
+          </button>
+          <button onClick={() => handleMobileNav('/employee-dashboard/notification')} className="block w-full text-left px-3 py-2 hover:bg-blue-100 rounded">
+            Notifications
+          </button>
+          <button onClick={() => handleMobileNav('/employee-dashboard/profile')} className="block w-full text-left px-3 py-2 hover:bg-blue-100 rounded">
+            Profile
+          </button>
+        </div>
+      )}
+
+      {/* Main Content */}
       <div className="grid md:grid-cols-2 gap-6">
-        {/* 📅 Calendar Section */}
+        {/* Calendar Section */}
         <div className="bg-blue-50 rounded-xl p-4 shadow">
           <Calendar
             onChange={setDate}
@@ -178,7 +210,7 @@ export default function Attendance() {
           </div>
         </div>
 
-        {/* 📝 Attendance Actions */}
+        {/* Attendance Actions */}
         <div className="space-y-4">
           {isToday && !loginInfo && (
             <button
@@ -231,7 +263,7 @@ export default function Attendance() {
 
               {logoutTime && (
                 <p className="text-green-600 font-semibold">
-                  ✅ Logged out at: {logoutTime}
+                   Logged out at: {logoutTime}
                 </p>
               )}
             </div>
