@@ -1,10 +1,11 @@
+// src/Pages/Signup.jsx
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import logo from '../assets/image/logo.png';
 import illustration from '../assets/image/signup-illustration.png';
-
-const BASE_URL = 'http://127.0.0.1:8000/';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -61,7 +62,7 @@ export default function Signup() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
-          role_id: 2, // ✅ Default: Employee role
+          role_id: 2, 
         }),
       });
 
@@ -75,13 +76,13 @@ export default function Signup() {
       }
     } catch (err) {
       console.error('Signup error:', err);
-      setError('🌐 Network error. Backend might be down or DevTunnel not active.');
+      setError('🌐 Network error. Please ensure the backend is running.');
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Illustration */}
+      {/* Left Illustration */}
       <div className="hidden md:block w-full md:w-1/2 bg-blue-50 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, x: '100%' }}
@@ -92,13 +93,13 @@ export default function Signup() {
         />
       </div>
 
-      {/* Form Section */}
+      {/* Right Signup Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-6 bg-white">
         <motion.div
           initial={{ opacity: 0, x: '-100%' }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="w-full max-w-md bg-white rounded-xl p-6 md:p-8"
+          className="w-full max-w-md bg-white rounded-xl p-6 md:p-8 shadow-md"
         >
           <div className="text-center mb-6">
             <img src={logo} alt="Logo" className="mx-auto h-16 w-16 mb-3" />

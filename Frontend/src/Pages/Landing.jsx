@@ -11,7 +11,7 @@ import PricingPolicy from './PricingPolicy';
 import { FaSquareInstagram } from "react-icons/fa6";
 import { BsThreadsFill } from "react-icons/bs";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://vtraco.onrender.com';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/';
 
 
 const partnerLogos = [
@@ -47,7 +47,7 @@ export default function LandingPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-  //  console.log("Login API URL:", `${BASE_URL}/api/users/login`);
+   console.log("Login API URL:", `${BASE_URL}/api/users/login`);
 
     if (!email || !password) {
       setError('Please fill in all fields');
