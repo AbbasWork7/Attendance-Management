@@ -4,7 +4,7 @@ import 'react-calendar/dist/Calendar.css';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL ='http://127.0.0.1:8000/' ;
 
 export default function Attendance() {
   const today = new Date();

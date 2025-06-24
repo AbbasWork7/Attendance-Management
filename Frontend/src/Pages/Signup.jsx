@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import logo from '../assets/image/logo.png';
 import illustration from '../assets/image/signup-illustration.png';
 
-const BASE_URL = 'https://vtraco.onrender.com';
+const BASE_URL = 'http://127.0.0.1:8000/';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
