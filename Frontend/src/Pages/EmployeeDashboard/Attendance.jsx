@@ -5,11 +5,10 @@ import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-<<<<<<< HEAD
+
 const BASE_URL ='http://127.0.0.1:8000/' ;
-=======
-const BASE_URL = 'http://127.0.0.1:8000';
->>>>>>> c6d2f7a065c7603714af9e05f5f1ffe94e2eeac5
+
+
 
 export default function Attendance() {
   const today = new Date();
