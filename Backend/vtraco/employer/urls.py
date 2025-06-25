@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 from .views import get_all_employees
 from .views import bulk_update_salary
+from .views import list_employees
+
 
 urlpatterns = [
     path('employees/', views.list_employees, name='list_employees'),
@@ -10,4 +12,5 @@ urlpatterns = [
     path('salary/<int:id>/', views.update_salary, name='update_salary'),
     path('get-all-employees/', get_all_employees, name='get-all-employees'),
     path('bulk-update-salary/', bulk_update_salary, name='bulk_update_salary'),
+    
 ]

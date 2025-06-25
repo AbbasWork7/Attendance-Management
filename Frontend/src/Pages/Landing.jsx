@@ -42,55 +42,64 @@ export default function LandingPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    console.log("Login API URL:", `${BASE_URL}api/users/login/`);
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setError('');
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
+  if (!email || !password) {
+    setError('Please fill in all fields');
+    return;
+  }
+
+  try {
+    setIsLoading(true);
+
+    const response = await fetch(`${BASE_URL}api/users/login/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || data.message || 'Invalid credentials');
     }
 
-    try {
-      setIsLoading(true);
+    // ✅ Receive profile_completed from backend (you must return it from API)
+    const userData = {
+      username: data.user?.username || email,
+      email,
+      role: data.user?.role_id === 2 ? 'employer' : 'employee',
+      user_id: data.user?.user_id,
+      profile_completed: data.user?.profile_completed ?? false, // default to false
+    };
 
-      const response = await fetch(`${BASE_URL}api/users/login/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+    setUser(userData);
 
-      const data = await response.json();
+    // ✅ Store data in localStorage
+    localStorage.setItem('access_token', data.tokens.access);
+    localStorage.setItem('refresh_token', data.tokens.refresh);
+    localStorage.setItem('userData', JSON.stringify(userData));
 
-      if (!response.ok) {
-        throw new Error(data.detail || data.message || 'Invalid credentials');
+    // ✅ Navigate accordingly
+    if (userData.role === 'employer') {
+      if (!userData.profile_completed) {
+        navigate('/register');
+      } else {
+        navigate('/employer-dashboard');
       }
-
-      const userData = {
-        username: data.user?.username || email,
-        email: email,
-        role: data.user?.role_id === 2 ? 'employer' : 'employee',
-        user_id: data.user?.user_id,
-      };
-
-      setUser(userData);
-
-      // ✅ Store access & refresh tokens correctly
-      localStorage.setItem('access_token', data.tokens.access);
-      localStorage.setItem('refresh_token', data.tokens.refresh);
-      localStorage.setItem('userData', JSON.stringify(userData));
-
-      const dashboardPath =
-        userData.role === 'employer' ? '/employer-dashboard' : '/employee-dashboard';
-      navigate(dashboardPath);
-    } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message || 'Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+    } else {
+      navigate('/employee-dashboard');
     }
-  };
+  } catch (err) {
+    console.error('Login error:', err);
+    setError(err.message || 'Login failed. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const sendOtp = async () => {
     if (!email) {
@@ -257,18 +266,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <div>
-                    <label className="block text-sm text-blue-800 mb-1 font-medium">Login As</label>
-                    <select
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
-                      className="w-full px-4 py-2 bg-white/80 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-blue-900"
-                    >
-                      <option value="employee">Employee</option>
-                      <option value="employer">Employer</option>
-                    </select>
-                  </div>
-                  
+               
                   <button
                     type="button"
                     onClick={() => {

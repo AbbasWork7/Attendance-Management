@@ -44,23 +44,22 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_delete = models.BooleanField(default=False)
     joining_date = models.DateField(null=True, blank=True)
     is_current_employee = models.BooleanField(default=True)
+    profile_completed = models.BooleanField(default=False)  # ✅ FIXED INDENTATION HERE
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     designation = models.CharField(max_length=100, null=True, blank=True)
     employee_name = models.CharField(max_length=255, null=True, blank=True)
     dob = models.DateField(null=True, blank=True)
     salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    
-
 
     objects = CustomUserManager()
-    
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.email
+
 
 class OTPVerification(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

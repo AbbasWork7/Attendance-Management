@@ -110,7 +110,6 @@ class SignupView(APIView):
                 "id_token": id_token
             }
         }, status=status.HTTP_201_CREATED)
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def LoginView(request):
@@ -130,16 +129,18 @@ def LoginView(request):
                 "user_id": user.id,
                 "username": user.username,
                 "email": user.email,
-                "role_id": user.role_id
+                "role_id": user.role_id,
+                "profile_completed": user.profile_completed  # ✅ Include this
             },
             "tokens": {
                 "access": str(refresh.access_token),
                 "refresh": str(refresh),
-                "id_token": str(refresh.access_token)  # you can replace this if you want a separate id_token
+                "id_token": str(refresh.access_token)
             }
         })
     else:
         return Response({"error": "Invalid email or password"}, status=401)
+
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

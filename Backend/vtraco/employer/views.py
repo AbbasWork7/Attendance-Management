@@ -4,17 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
-from employee.models import Salary
-from users.models import CustomUser
-from employee.models import Attendance
+from employee.models import Salary, Attendance
 from django.views.decorators.csrf import csrf_exempt
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-
-# If you have a utility for generating passwords and sending emails
-# from your_app.utils import generate_password, send_invitation_email  # Replace with actual utility path
-
 
 User = get_user_model()
 
@@ -68,7 +62,6 @@ def update_employee(request, employee_id):
         return Response({"detail": "Only employers can update employees."}, status=status.HTTP_403_FORBIDDEN)
 
     try:
-        print(employee_id)
         employee = User.objects.get(id=employee_id, role_id=3, company_name=employer.company_name)
 
         employee.employee_name = request.data.get('employee_name', employee.employee_name)
@@ -85,9 +78,9 @@ def update_employee(request, employee_id):
             "message": "Employee details updated successfully."
         }, status=status.HTTP_200_OK)
 
-    except User.DoesNotExist as e:
-        print(e)
+    except User.DoesNotExist:
         return Response({"status": "error", "message": "Employee not found or unauthorized."}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])

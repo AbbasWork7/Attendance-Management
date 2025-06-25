@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     dob: "",
@@ -26,12 +28,17 @@ export default function Register() {
     fileInputRef.current.click();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form Data:", formData);
-    alert("Profile submitted!");
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  console.log("Register data:", formData);
 
+  // Simulate sending to backend and marking profile complete
+  const userData = JSON.parse(localStorage.getItem('userData'));
+  userData.profile_completed = true;
+  localStorage.setItem('userData', JSON.stringify(userData));
+
+  navigate('/employer-dashboard');
+};
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="bg-white text-black w-full max-w-md p-6 rounded-xl shadow-lg">
@@ -151,9 +158,6 @@ export default function Register() {
           >
             Confirm
           </button>
-
-          
-          
         </form>
       </div>
     </div>

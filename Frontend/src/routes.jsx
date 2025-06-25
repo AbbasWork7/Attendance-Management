@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Landing from './Pages/Landing';
 import Signup from './Pages/Signup';
+import Register from './Pages/EmployerDashboard/Register';
 import EmployerDashboard from './Pages/EmployerDashboard/EmployerDashboard';
 import EmployeeDashboard from './Pages/EmployeeDashboard/EmployeeDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -13,6 +14,8 @@ export default function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/landing" element={<Landing />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/register" element={<Register />} />
+
 
       {/* Protected Employer Dashboard Route with Nested Routes */}
       <Route
