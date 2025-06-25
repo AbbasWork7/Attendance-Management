@@ -18,15 +18,25 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [hasProfilePic, setHasProfilePic] = useState(true); // assume true, change to false if needed
+  const [hasProfilePic, setHasProfilePic] = useState(true);
 
-  // Simulated profile pic check (replace with real logic if stored in context or global state)
   useEffect(() => {
     const profileData = localStorage.getItem('profilePicUploaded');
     if (profileData !== 'true') {
       setHasProfilePic(false);
     }
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter' && showLogoutModal) {
+        handleLogoutConfirm();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showLogoutModal]);
 
   const handleLogoutConfirm = () => {
     setShowLogoutModal(false);
@@ -45,7 +55,7 @@ export default function Sidebar() {
         <div className="relative">
           <FiUser size={20} />
           {!hasProfilePic && (
-            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
           )}
         </div>
       )
@@ -55,8 +65,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Top Header */}
-      <div className="md:hidden bg-white shadow px-4 py-3 flex justify-between items-center sticky top-0 z-30">
-        <h2 className="text-lg font-bold text-blue-900">Candidate Panel</h2>
+      <div className="md:hidden bg-white shadow px-4 py-3 flex justify-end items-center sticky top-0 z-30">
         <button onClick={() => setIsOpen(!isOpen)} className="text-blue-900 focus:outline-none">
           {isOpen ? <MdClose size={28} /> : <MdMenu size={28} />}
         </button>
@@ -71,7 +80,7 @@ export default function Sidebar() {
         <div>
           {/* Close icon on top-right inside sidebar (mobile only) */}
           <div className="flex justify-between items-center md:hidden mb-4">
-            <h2 className="text-lg font-bold">Candidate Panel</h2>
+            <div />
             <button onClick={() => setIsOpen(false)} className="text-blue-900">
               <MdClose size={24} />
             </button>
