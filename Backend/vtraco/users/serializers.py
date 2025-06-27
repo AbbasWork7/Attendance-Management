@@ -78,5 +78,6 @@ class LoginSerializer(serializers.Serializer):
 class EmployerUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['logo', 'company_name', 'contact', 'designation']
+        fields = ['logo', 'company_name', 'contact', 'designation', 'gender', 'country_code']
+
 

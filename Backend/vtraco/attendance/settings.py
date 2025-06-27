@@ -55,8 +55,12 @@ AUTHENTICATION_BACKENDS = [
 
 # ✅ CORS config for React frontend (localhost:5173)
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5174"
+    "http://localhost:5173"
 ]
+
+# CORS_ALLOWED_ORIGINS = [
+#     "*"
+# ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "authorization",
@@ -64,6 +68,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # ✅ Middleware (CORS must be first)
 MIDDLEWARE = [

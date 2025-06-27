@@ -168,14 +168,19 @@ class AddEmployerAPIView(APIView):
 
     def put(self, request):
         user = request.user
-        
+
         if user.role_id != 2:
             return Response({"detail": "Only Employers can update employer profile."}, status=status.HTTP_403_FORBIDDEN)
-        
+
         serializer = EmployerUpdateSerializer(user, data=request.data, partial=True)
-        
+
         if serializer.is_valid():
             serializer.save()
+            
+            # Set profile_completed = True
+            user.profile_completed = True
+            user.save(update_fields=['profile_completed'])
+
             return Response({
                 "status": "success",
                 "message": "Employer profile updated successfully.",
@@ -183,6 +188,7 @@ class AddEmployerAPIView(APIView):
             }, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         
 User = get_user_model()
 
