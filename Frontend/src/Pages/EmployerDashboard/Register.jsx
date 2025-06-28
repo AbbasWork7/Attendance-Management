@@ -51,7 +51,7 @@ export default function Register() {
     };
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/users/add-employer/", {
+      const res = await fetch("http://51.21.167.66:8000/api/users/add-employer/", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

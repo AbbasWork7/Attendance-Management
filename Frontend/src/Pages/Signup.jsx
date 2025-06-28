@@ -7,7 +7,7 @@ import logo from '../assets/image/logo.png';
 import illustration from '../assets/image/signup-illustration.png';
 
 
-const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = 'http://51.21.171.208:8000';
 const SIGNUP_URL = `${BASE_URL}/api/users/signup/`;
 
 

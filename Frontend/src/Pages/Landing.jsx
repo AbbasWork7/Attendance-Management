@@ -11,7 +11,7 @@ import PricingPolicy from './PricingPolicy';
 import { FaSquareInstagram } from "react-icons/fa6";
 import { BsThreadsFill } from "react-icons/bs";
 
-const BASE_URL = 'http://127.0.0.1:8000/';
+const BASE_URL = 'http://51.21.171.208:8000/';
 
 const partnerLogos = [
   { name: 'TechCorp', logo: companyLogo },

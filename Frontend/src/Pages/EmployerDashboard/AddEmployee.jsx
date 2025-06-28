@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubscription } from "./SubscriptionContext";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "http://51.21.167.66:8000";
 
 export default function AddEmployee() {
   const { isSubscribed, useEmployeeSlot, addCandidate } = useSubscription();
