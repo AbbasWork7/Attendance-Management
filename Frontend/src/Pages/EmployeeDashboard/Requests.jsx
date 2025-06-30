@@ -4,31 +4,44 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Requests() {
-  const [type, setType] = useState('leave'); // "leave", "wfh", "other"
+  const [type, setType] = useState('leave');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const response = await axios.post(`${BASE_URL}/employee/employee-request`, {
-        request_type: type,
-        message: message, // updated payload key from "reason" → "message"
-      });
+try {
+  const token = localStorage.getItem("access_token");
+  const response = await axios.post(`${BASE_URL}api/employee/employee-request/`, {
+    request_type: type,
+    message: message,
+  }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-      if (response.status === 200 || response.status === 201) {
-        setStatus('✅ Request submitted successfully!');
-        setMessage('');
-      } else {
-        setStatus('⚠️ Failed to submit request.');
-      }
-    } catch (error) {
-      console.error('API Error:', error);
-      setStatus('❌ An error occurred while submitting.');
-    }
-  };
+  if (response.status === 200 || response.status === 201) {
+    setStatus('✅ Request submitted successfully!');
+    setMessage('');
+  } else {
+    setStatus('⚠️ Failed to submit request.');
+  }
+} catch (error) {
+  // Show specific error from backend (e.g., validation error)
+  const errorMessage = error.response?.data?.errors
+    ? JSON.stringify(error.response.data.errors)
+    : error.response?.data?.detail || error.message;
 
+  console.error('API Error:', errorMessage);
+  setStatus(`❌ Error: ${errorMessage}`);
+  toast.error(`❌ ${errorMessage}`);
+}
+
+};
+
+  
   return (
     <div className="bg-white rounded-xl shadow-md p-6 text-blue-900 transition-all">
       <h2 className="text-2xl font-semibold mb-4">Requests</h2>

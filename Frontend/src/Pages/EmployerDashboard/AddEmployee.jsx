@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubscription } from "./SubscriptionContext";
 
-const BASE_URL = "http://51.21.167.66:8000";
+const BASE_URL = "http://127.0.0.1:8000";
 
 export default function AddEmployee() {
   const { isSubscribed, useEmployeeSlot, addCandidate } = useSubscription();
@@ -16,7 +16,7 @@ export default function AddEmployee() {
     email: "",
     phone: "",
     DOB: "",
-    company_name: "TechNova Pvt Ltd",
+    company_name: "",
     designation: "",
     salary: "",
   });
@@ -79,7 +79,7 @@ export default function AddEmployee() {
           email: "",
           phone: "",
           DOB: "",
-          company_name: "TechNova Pvt Ltd",
+          company_name: "",
           designation: "",
           salary: "",
         });
@@ -112,6 +112,7 @@ export default function AddEmployee() {
 
       <form onSubmit={handleSubmit} className="max-w-xl mx-auto grid gap-4">
         <InputField label="Candidate Name" type="text" name="name" value={formData.name} onChange={handleChange} />
+        <InputField label="Company Name" type="text" name="company_name" value={formData.company_name} onChange={handleChange} />
         <InputField label="Email" type="email" name="email" value={formData.email} onChange={handleChange} />
         <InputField label="DOB" type="date" name="DOB" value={formData.DOB} onChange={handleChange} />
         <InputField label="Phone Number" type="tel" name="phone" value={formData.phone} pattern="[0-9]{10}" onChange={handleChange} />

@@ -10,8 +10,10 @@ import TermsOfService from './TermsOfService';
 import PricingPolicy from './PricingPolicy';
 import { FaSquareInstagram } from "react-icons/fa6";
 import { BsThreadsFill } from "react-icons/bs";
+import axios from 'axios';
 
-const BASE_URL = 'http://51.21.169.126:8000/';
+
+const BASE_URL = 'http://127.0.0.1:8000/';
 
 const partnerLogos = [
   { name: 'TechCorp', logo: companyLogo },
@@ -41,7 +43,7 @@ export default function LandingPage() {
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
+   
 const handleLogin = async (e) => {
   e.preventDefault();
   setError('');
@@ -99,8 +101,6 @@ const handleLogin = async (e) => {
     setIsLoading(false);
   }
 };
-
-
   const sendOtp = async () => {
     if (!email) {
       setError('Please enter your email');
@@ -109,11 +109,13 @@ const handleLogin = async (e) => {
 
     try {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // simulate delay
-      setOtpSent(true);
-      setError('OTP sent to your email!');
+      const res = await axios.post(`${ BASE_URL}/api/users/forgot-password/`, { email });
+      if (res.status === 200) {
+        setOtpSent(true);
+        setError('✅ OTP sent to your email!');
+      }
     } catch (err) {
-      setError('Failed to send OTP. Try again.');
+      setError(err.response?.data?.error || '❌ Failed to send OTP.');
     } finally {
       setIsLoading(false);
     }
@@ -134,20 +136,26 @@ const handleLogin = async (e) => {
 
     try {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // simulate delay
-      setError('Password reset successfully!');
-      setShowForgotPassword(false);
-      setOtpSent(false);
-      setOtp('');
-      setNewPassword('');
-      setConfirmPassword('');
+      const res = await axios.post(`${ BASE_URL}/api/users/verify_otp/`, {
+        email,
+        otp,
+        new_password: newPassword,
+      });
+
+      if (res.data.status === 'success') {
+        setError('✅ Password reset successfully!');
+        setOtpSent(false);
+        setOtp('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setEmail('');
+      }
     } catch (err) {
-      setError('Failed to reset password. Try again.');
+      setError(err.response?.data?.error || '❌ Failed to reset password.');
     } finally {
       setIsLoading(false);
     }
   };
-
 
   // Rest of your component remains the same...
   return (

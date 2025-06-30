@@ -21,15 +21,15 @@ const MyProfile = () => {
   useEffect(() => {
     setTimeout(() => {
       setProfileData({
-        name: 'Sarah Johnson',
-        email: 's.johnson@company.com',
-        position: 'HR Manager',
-        company: 'TechCorp Inc.',
-        phone: '+1 (555) 123-4567',
+        name: '',
+        email: '',
+        position: '',
+        company: '',
+        phone: '',
         profileImage: '',
-        department: 'Human Resources',
-        joinDate: '2021-06-15',
-        employeesManaged: 47,
+        department: '',
+        joinDate: '',
+        employeesManaged: '',
         lastLogin: new Date().toISOString()
       });
       setIsLoading(false);

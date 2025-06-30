@@ -22,7 +22,7 @@ export default function Attendance() {
   const [attendanceMap, setAttendanceMap] = useState({});
   const [menuOpen, setMenuOpen] = useState(false); // mobile toggle
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('access_token');
   const isToday = date.toDateString() === todayStr;
   const navigate = useNavigate();
 

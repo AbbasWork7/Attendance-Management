@@ -25,6 +25,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from users.serializers import EmployeeSerializer
 
 
 
@@ -310,4 +311,30 @@ def verify_otp(request):
     except OTPVerification.DoesNotExist:
         return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_employee_profile(request):
+    user = request.user
+    return Response({
+        "username": user.employee_name,
+        "email": user.email,
+        "contact": user.contact,
+        "location": user.location if hasattr(user, 'location') else '',
+        "role": user.role.role_name if hasattr(user, 'role') else '',
+        "profile_picture": user.profile_picture.url if user.profile_picture else None,
+       
+    }, 
+     print("✔ users/views.py is being loaded"),
+    status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_employee_profile(request):
+    user = request.user
+
+    serializer = EmployeeSerializer(user)
+    return Response({
+        "status": "success",
+        "data": serializer.data
+    }, status=status.HTTP_200_OK)
 

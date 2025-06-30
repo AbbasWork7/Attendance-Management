@@ -3,6 +3,8 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth import get_user_model
+
 
 
 
@@ -76,6 +78,36 @@ class OTPVerification(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - OTP: {self.otp}" 
+    from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class EmployeeRequest(models.Model):
+    REQUEST_TYPE_CHOICES = [
+        ('leave', 'Leave'),
+        ('wfh', 'Work From Home'),
+        ('other', 'Other'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('resolved', 'Resolved'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_employee_requests')
+    request_type = models.CharField(max_length=20, choices=REQUEST_TYPE_CHOICES)
+    message = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.request_type}"
+
+    
+    
 
 # class Attendance(models.Model):
 #     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='attendance_from_users')

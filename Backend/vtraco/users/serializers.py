@@ -4,6 +4,12 @@ from rest_framework_simplejwt.tokens import RefreshToken,AccessToken
 from .models import CustomUser
 from rest_framework import status
 from django.contrib.auth import authenticate
+from .models import CustomUser  
+from .models import EmployeeRequest
+
+
+
+
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -75,9 +81,31 @@ class LoginSerializer(serializers.Serializer):
             }, status=status.HTTP_200_OK)
     
 
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id',
+            'employee_name',
+            'email',
+            'contact',
+            'company_name',
+            'designation',
+            'dob',
+            'salary',
+            'joining_date',
+            'created_at',
+            'profile_picture'  # include if needed
+        ]
 class EmployerUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['logo', 'company_name', 'contact', 'designation', 'gender', 'country_code']
+        fields = ['contact', 'location', 'profile_picture'] 
+        # serializers.py
+class EmployeeRequestSerializer(serializers.ModelSerializer):
+    message = serializers.CharField(source='reason')  # map 'message' → 'reason'
 
-
+    class Meta:
+        model = EmployeeRequest
+        fields = ['request_type', 'message', 'user']
+        read_only_fields = ['user']

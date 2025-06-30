@@ -1,23 +1,54 @@
-// src/EmployeeDashboard/pages/Profile.jsx
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL =`http://127.0.0.1:8000/`;
 
 export default function Profile() {
   const [user, setUser] = useState({
-    name: 'Deva Das',
-    role: 'Full Stack Developer',
-    email: 'devadas@gmail.com',
-    phone: '9876543210',
-    location: 'Tirunelveli, Tamil Nadu',
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    role: '',
     profilePic: null,
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [profilePicPreview, setProfilePicPreview] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+  try {
+    const token = localStorage.getItem('access_token');
+    const response = await axios.get(`${BASE_URL}api/employee/profile/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = response.data.data;
+    setUser({
+      name: data.employee_name || '',
+      email: data.email || '',
+      phone: data.contact || '',
+      location: data.company_name || '',
+      role: data.designation || '',
+      profilePic: null,
+    });
+
+    // Optional default picture
+    setProfilePicPreview('https://i.pravatar.cc/150?img=8');
+  } catch (err) {
+    console.error('Profile fetch error:', err);
+    toast.error('❌ Failed to fetch profile');
+  }
+};
+
+
+    fetchProfile();
+  }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,27 +73,30 @@ export default function Profile() {
 
   const handleSubmit = async () => {
     try {
+      const token = localStorage.getItem("access_token");
       const formData = new FormData();
       formData.append('contact', user.phone);
+      formData.append('location', user.location);
       if (user.profilePic) {
         formData.append('profile_picture', user.profilePic);
       }
 
-      const response = await axios.put(`${BASE_URL}/employee/update-profile/`, formData, {
+      const response = await axios.put(`${BASE_URL}employee/update-profile/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.status === 200 || response.status === 201) {
-        toast.success('Profile updated successfully!');
+        toast.success('✅ Profile updated successfully!');
         setIsEditing(false);
       } else {
-        toast.error('Failed to update profile.');
+        toast.error('❌ Failed to update profile.');
       }
     } catch (error) {
       console.error('Update profile error:', error);
-      toast.error('Error while updating profile.');
+      toast.error('❌ Error while updating profile.');
     }
   };
 

@@ -121,7 +121,7 @@ def get_all_employees(request):
             return Response({'error': 'Only employers can access this endpoint'}, status=403)
 
         company_name = employer.company_name
-        employees = CustomUser.objects.filter(company_name=company_name, role_id=3)
+        employees = User.objects.filter(company_name=company_name, role_id=3)
 
         data = []
         for emp in employees:

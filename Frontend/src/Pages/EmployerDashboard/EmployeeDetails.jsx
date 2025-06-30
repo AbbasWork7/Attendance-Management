@@ -11,7 +11,7 @@ export default function EmployeeDetails() {
   const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const token = localStorage.getItem("access_token"); // ✅ use correct key
+  const token = localStorage.getItem("access_token");
 
   useEffect(() => {
     fetchEmployees();
@@ -23,7 +23,16 @@ export default function EmployeeDetails() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.data.status === "success") {
-        setEmployees(res.data.employees);
+        const enriched = res.data.employees.map(emp => ({
+          ...emp,
+          totalPresent: emp.present ?? 0,
+          absents: emp.absent ?? 0,
+          attendancePercent: emp.attendance_percent ?? 0,
+          status: emp.status === 'Current' ? 'Active' : 'Inactive'
+        }));
+        setEmployees(enriched);
+      } else {
+        toast.error("Failed to load employees");
       }
     } catch (err) {
       toast.error("Failed to load employees");
@@ -80,9 +89,9 @@ export default function EmployeeDetails() {
               <td className="px-4 py-3">{emp.email}</td>
               <td className="px-4 py-3">{emp.designation || "-"}</td>
               <td className="px-4 py-3">{emp.joining_date ? new Date(emp.joining_date).toLocaleDateString() : '-'}</td>
-              <td className="px-4 py-3">{emp.totalPresent || 0}</td>
-              <td className="px-4 py-3">{emp.absents || 0}</td>
-              <td className="px-4 py-3">{emp.attendancePercent || 0}%</td>
+              <td className="px-4 py-3">{emp.totalPresent}</td>
+              <td className="px-4 py-3">{emp.absents}</td>
+              <td className="px-4 py-3">{emp.attendancePercent}%</td>
               <td className="px-4 py-3">
                 <span className={`px-2 py-1 text-xs rounded-full ${
                   emp.status === 'Active' ? 'bg-green-200 text-green-800'

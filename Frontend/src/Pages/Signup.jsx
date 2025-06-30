@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import logo from '../assets/image/logo.png';
+
 import illustration from '../assets/image/signup-illustration.png';
 
 
-const BASE_URL = 'http://51.21.169.126:8000';
+const BASE_URL = 'http://127.0.0.1:8000';
 const SIGNUP_URL = `${BASE_URL}/api/users/signup/`;
 
 

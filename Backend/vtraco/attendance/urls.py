@@ -8,6 +8,10 @@ urlpatterns = [
     path('api/employer/', include('employer.urls')),
     path('api/users/', include('users.urls')),
     path('api/employee/', include('employee.urls')),
+    path('', include('users.urls')),
+
+    
+    
 ]
 
 # For serving media files during development
