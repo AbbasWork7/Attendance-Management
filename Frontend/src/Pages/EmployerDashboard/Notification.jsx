@@ -1,29 +1,34 @@
-// src/Pages/EmployerDashboard/Notification.jsx
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FaBell } from "react-icons/fa";
 import toast from "react-hot-toast";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = "http://127.0.0.1:8000";
 
 export default function Notification() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [reply, setReply] = useState({}); // holds messages by ID
+  const [reply, setReply] = useState({}); // holds messages by notification ID
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/api/employer/notifications/`);
-        if (res.data.status === "success") {
+        const token = localStorage.getItem("access_token");
+
+        const res = await axios.get(`${BASE_URL}/api/employer/notifications/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.data.status === "success" && Array.isArray(res.data.notifications)) {
           setNotifications(res.data.notifications);
         } else {
           toast.error("❌ Failed to load notifications.");
         }
       } catch (err) {
-        toast.error("❌ Error loading data.");
+        toast.error("❌ Error loading notifications.");
         console.error(err);
       } finally {
         setLoading(false);
@@ -40,21 +45,30 @@ export default function Notification() {
   const handleResponse = async (id, status) => {
     const message = reply[id]?.trim();
     if (!message) {
-      toast.error("Please add a message before responding.");
+      toast.error("Please enter a message.");
       return;
     }
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/employer/notifications/respond/`, {
-        notification_id: id,
-        status: status,
-        response_message: message,
-      });
+      const token = localStorage.getItem("access_token");
+
+      const res = await axios.post(
+        `${BASE_URL}/api/employer/notifications/respond/`,
+        {
+          notification_id: id,
+          status: status,
+          response_message: message,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (res.data.status === "success") {
-        toast.success(`✅ ${status === "approved" ? "Approved" : "Declined"} successfully!`);
-
-        // Remove from UI or update status
+        toast.success(`✅ Request ${status} successfully!`);
+        // Remove the notification from list
         setNotifications((prev) => prev.filter((n) => n.id !== id));
         setReply((prev) => {
           const newReply = { ...prev };
@@ -65,11 +79,16 @@ export default function Notification() {
         toast.error("❌ Failed to submit response.");
       }
     } catch (err) {
-      toast.error("❌ Server error.");
+      if (err.response?.status === 404) {
+        toast.error("❌ API endpoint not found (404).");
+      } else {
+        toast.error("❌ Server error.");
+      }
       console.error(err);
     }
   };
 
+  if (loading) return <p className="text-center mt-4">Loading notifications...</p>;
   return (
     <motion.div
       className="p-6 bg-white min-h-screen text-blue-900"

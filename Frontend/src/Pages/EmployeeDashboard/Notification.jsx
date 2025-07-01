@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = import.meta.env.VITE_API_KEY; // Optional
 
 export default function Notification() {
   const [notifications, setNotifications] = useState([]);
@@ -11,11 +10,7 @@ export default function Notification() {
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/api/employee/notifications/`, {
-        headers: {
-          ...(API_KEY && { Authorization: `Bearer ${API_KEY}` })
-        }
-      })
+      .get(`${BASE_URL}/api/employee/notifications/`)
       .then((response) => {
         if (response.status === 200 && Array.isArray(response.data)) {
           setNotifications(response.data);
@@ -27,11 +22,12 @@ export default function Notification() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('API Error:', err);
+        console.error('API Error:', err?.message || err);
         setError('❌ Could not load notifications.');
         setLoading(false);
       });
   }, []);
+
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 text-blue-900 transition-all">

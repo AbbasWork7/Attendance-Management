@@ -154,3 +154,6 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
 # ✅ Set default Django settings environment (if needed)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'attendance.settings')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

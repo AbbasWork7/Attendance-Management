@@ -17,6 +17,7 @@ urlpatterns = [
     path('forgot-password/', ForgotPasswordRequestView.as_view(), name='forgot-password'),
     path('verify_otp/', verify_otp, name='verify_otp'),
     path('api/employer/', include('employer.urls')),
-    path('api/employee/profile/', get_employee_profile),  # ✅ fixed line
+    path('api/employee/profile/', get_employee_profile),
+    
 
 ]

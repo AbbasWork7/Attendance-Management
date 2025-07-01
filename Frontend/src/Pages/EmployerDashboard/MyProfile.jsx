@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+
+const BASE_URL = 'http://127.0.0.1:8000'; 
 
 const MyProfile = () => {
   const [profileData, setProfileData] = useState({
@@ -9,7 +12,7 @@ const MyProfile = () => {
     company: '',
     phone: '',
     profileImage: '',
-    department: '',
+  
     joinDate: '',
     employeesManaged: 0,
     lastLogin: ''
@@ -19,21 +22,38 @@ const MyProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setProfileData({
-        name: '',
-        email: '',
-        position: '',
-        company: '',
-        phone: '',
-        profileImage: '',
-        department: '',
-        joinDate: '',
-        employeesManaged: '',
-        lastLogin: new Date().toISOString()
-      });
-      setIsLoading(false);
-    }, 1500);
+    const fetchEmployerProfile = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const res = await axios.get(`${BASE_URL}/api/employer/details/`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (res.data.status === 'success') {
+          const emp = res.data.employer;
+          setProfileData({
+            name: emp.username|| '',
+            email: emp.email || '',
+            position: emp.designation || '',
+            company: emp.company_name || '',
+            phone: emp.contact || '',
+           profileImage: emp.profile_image ? `${BASE_URL}${emp.profile_image}` : '',  
+      
+            // joinDate: emp.joining_date || '',
+    
+            lastLogin: emp.last_login || new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.error("❌ Error fetching employer profile:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEmployerProfile();
   }, []);
 
   const handleInputChange = (e) => {
@@ -60,7 +80,6 @@ const MyProfile = () => {
       </div>
     );
   }
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -126,7 +145,7 @@ const MyProfile = () => {
                 />
               </div>
             ))}
-            <div className="md:col-span-2">
+            {/* <div className="md:col-span-2">
               <label className="block text-sm font-medium mb-1">Department</label>
               <select
                 name="department"
@@ -140,7 +159,7 @@ const MyProfile = () => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
             <div className="md:col-span-2 flex justify-end space-x-3">
               <motion.button
                 whileHover={{ scale: 1.03 }}
@@ -167,21 +186,21 @@ const MyProfile = () => {
           >
             <div className="space-y-3">
               <Info label="Company" value={profileData.company} />
-              <Info label="Department" value={profileData.department} />
+              
               <Info label="Position" value={profileData.position} />
-              <Info label="Employees Managed" value={profileData.employeesManaged} />
+           
             </div>
             <div className="space-y-3">
               <Info label="Email" value={profileData.email} />
               <Info label="Phone" value={profileData.phone} />
-              <Info
+              {/* <Info
                 label="Join Date"
                 value={new Date(profileData.joinDate).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })}
-              />
+              /> */}
               <Info
                 label="Last Login"
                 value={new Date(profileData.lastLogin).toLocaleString('en-US', {
@@ -201,9 +220,9 @@ const MyProfile = () => {
                   <div className="w-3 h-3 bg-green-500 rounded-full" />
                   <span className="text-sm text-blue-900">Your account is secure</span>
                 </div>
-                <button className="mt-3 text-sm text-blue-800 hover:underline">
+                {/* <button className="mt-3 text-sm text-blue-800 hover:underline">
                   Change Password
-                </button>
+                </button> */}
               </motion.div>
             </div>
           </motion.div>

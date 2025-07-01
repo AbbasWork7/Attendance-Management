@@ -29,6 +29,8 @@ from users.serializers import EmployeeSerializer
 
 
 
+
+
 User = get_user_model()
 
 
@@ -337,4 +339,29 @@ def get_employee_profile(request):
         "status": "success",
         "data": serializer.data
     }, status=status.HTTP_200_OK)
+
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def respond_to_notification(request):
+#     user = request.user
+#     data = request.data
+
+#     notification_id = data.get('notification_id')
+#     status = data.get('status')
+#     response_message = data.get('response_message')
+
+#     if not all([notification_id, status, response_message]):
+#         return Response({"error": "Missing required fields."}, status=400)
+
+#     try:
+#         notification = Notification.objects.get(id=notification_id, user=user)
+#         notification.status = status
+#         notification.response_message = response_message
+#         notification.save()
+#         return Response({"status": "success"})
+#     except Notification.DoesNotExist:
+#         return Response({"error": "Notification not found."}, status=404)
+
+
 

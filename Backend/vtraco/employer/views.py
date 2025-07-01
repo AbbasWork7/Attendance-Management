@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from users.serializers import EmployerUpdateSerializer
 
 User = get_user_model()
 
@@ -195,3 +196,24 @@ def bulk_update_salary(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_employer(request):
+    user = request.user
+
+    # Check if the user is an employer
+    if user.role_id != 2:
+        return Response({"detail": "Access denied. Only Employers can view this data."},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    serializer = EmployerUpdateSerializer(user)
+
+    return Response({
+        "status": "success",
+        "employer": serializer.data
+    }, status=status.HTTP_200_OK)

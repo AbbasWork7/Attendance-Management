@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import get_employer
 
 urlpatterns = [
     # Employee CRUD
@@ -13,4 +14,6 @@ urlpatterns = [
 
     # Analytics
     path('get-all-employees/', views.get_all_employees, name='get_all_employees'),
+      path('details/', views.get_employer, name='get_employer'),
+ 
 ]

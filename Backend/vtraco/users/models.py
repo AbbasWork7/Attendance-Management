@@ -10,11 +10,18 @@ from django.contrib.auth import get_user_model
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, username, email, password=None, role_id=None, **extra_fields):
+    def create_user(self, username, email, password=None, role_id=None, employee_name=None, **extra_fields):
         if not email:
             raise ValueError("Users must have an email address")
+
         email = self.normalize_email(email)
-        user = self.model(username=username, email=email, role_id=role_id, **extra_fields)
+        user = self.model(
+            username=username,
+            email=email,
+            role_id=role_id,
+            employee_name=employee_name or username,  # ✅ this sets employee_name properly
+            **extra_fields
+        )
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -29,8 +36,13 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(username, email, password, **extra_fields)
-
+        return self.create_user(
+            username=username,
+            email=email,
+            password=password,
+            employee_name=username,  # also set employee_name for superuser
+            **extra_fields
+        )
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True)
@@ -55,7 +67,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     country_code = models.CharField(max_length=5, null=True, blank=True)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], null=True, blank=True)
-
+   
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'

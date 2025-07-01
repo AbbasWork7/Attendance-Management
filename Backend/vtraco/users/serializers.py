@@ -15,7 +15,7 @@ from .models import EmployeeRequest
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password', 'role_id']
+        fields = ['username', 'email', 'password', 'role_id','employee_name']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -25,10 +25,11 @@ class SignupSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            role_id=validated_data['role_id']
-        )
+            role_id=validated_data['role_id'],
+            employee_name=validated_data['username']   # 👈 assign username as employee_name
+        ),
+        print("EMPLOYEE NAME:", user.employee_name) 
         return user
-
     def to_representation(self, instance):
         refresh = RefreshToken.for_user(instance)
 
@@ -100,7 +101,19 @@ class EmployeeSerializer(serializers.ModelSerializer):
 class EmployerUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['contact', 'location', 'profile_picture'] 
+        fields = [
+            'id',
+            'email',
+            'username',
+            'company_name',
+            'contact',
+            'designation',
+            'dob',
+            'salary',
+            'joining_date',
+            'profile_completed'
+        ] # Check these fields carefully!
+
         # serializers.py
 class EmployeeRequestSerializer(serializers.ModelSerializer):
     message = serializers.CharField(source='reason')  # map 'message' → 'reason'
@@ -109,3 +122,5 @@ class EmployeeRequestSerializer(serializers.ModelSerializer):
         model = EmployeeRequest
         fields = ['request_type', 'message', 'user']
         read_only_fields = ['user']
+
+
