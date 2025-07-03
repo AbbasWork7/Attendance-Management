@@ -6,9 +6,18 @@ from rest_framework import status
 from .models import Attendance, Notification
 from datetime import datetime
 import calendar
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Salary
+from .serializers import SalarySerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from users.models import CustomUser
+from rest_framework.views import APIView
 from .serializers import EmployeeSerializer, EmployeeRequestSerializer, SalarySerializer, NotificationSerializer
+from .serializers import CustomUserSerializer 
+import traceback
+from .models import CustomUser
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -202,6 +211,7 @@ def update_profile_info(request):
 #         "message": "Employee request updated successfully."
 #     }, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_notifications(request):
@@ -223,4 +233,22 @@ def get_profile(request):
         "data": serializer.data
     }, status=status.HTTP_200_OK)
 
+class SalaryBulkCreateView(APIView):
+    def post(self, request):
+        serializer = SalarySerializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Salaries created successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class EmployeeListView(APIView):
+    def get(self, request):
+        try:
+            employees = CustomUser.objects.filter(role_id=3)
+            serializer = CustomUserSerializer(employees, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            print("🔥 ERROR in EmployeeListView:", str(e))
+            import traceback
+            traceback.print_exc()
+            return Response({'error': 'Something went wrong'}, status=500)

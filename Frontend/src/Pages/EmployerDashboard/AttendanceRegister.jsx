@@ -1,36 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoMdCloseCircle } from 'react-icons/io';
 
-const sampleData = [
-  {
-    id: 1,
-    name: 'John Doe',
-    profile: 'Developer',
-    imageUrl: '/images/john.jpg',
-    login: '9:00 AM',
-    logout: '5:00 PM',
-    eodFile: '/files/eod-john.pdf',
-    salaryPerDay: 1000,
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    profile: 'Designer',
-    imageUrl: '/images/jane.jpg',
-    login: '10:00 AM',
-    logout: '6:00 PM',
-    eodFile: '',
-    salaryPerDay: 1200,
-  },
-];
-
 export default function AttendanceRequest() {
-  const [employees, setEmployees] = useState(sampleData);
+  const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [modalData, setModalData] = useState(null);
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkSelection, setBulkSelection] = useState({});
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    axios.get('http://127.0.0.1:8000/api/employee/', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => setEmployees(res.data))
+      .catch(err => console.error('Failed to fetch employees', err));
+  }, []);
+
+  const submitBulkAttendance = async () => {
+    const today = new Date().toISOString().split("T")[0];
+
+    const summary = employees.map((emp) => {
+      const type = bulkSelection[emp.id] || 'Absent';
+      const multiplier = type === 'Full Day' ? 1 : type === 'Half Day' ? 0.5 : 0;
+      const salary = emp.salaryPerDay * multiplier;
+
+      return {
+        user: emp.id,
+        date: today,
+        attendance_type: type.toLowerCase().replace(" ", "_"),
+        salary,
+        status: false,
+      };
+    });
+
+    try {
+      const token = localStorage.getItem("access_token");
+
+      await axios.post("http://127.0.0.1:8000/api/salaries/bulk_create/", summary, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert("Bulk attendance submitted successfully!");
+      setModalData({ bulk: true, data: summary });
+      setBulkMode(false);
+      setBulkSelection({});
+    } catch (err) {
+      console.error("Bulk submit failed:", err);
+      alert("Failed to submit attendance");
+    }
+  };
 
   const handleAppearanceClick = (employee) => {
     setSelectedEmployee(employee);
@@ -41,7 +62,7 @@ export default function AttendanceRequest() {
     const salary = selectedEmployee.salaryPerDay * multiplier;
 
     setModalData({
-      name: selectedEmployee.name,
+      name: selectedEmployee.username,
       salary,
       login: selectedEmployee.login,
       logout: selectedEmployee.logout,
@@ -62,25 +83,6 @@ export default function AttendanceRequest() {
     }));
   };
 
-  const submitBulkAttendance = () => {
-    const summary = employees.map((emp) => {
-      const type = bulkSelection[emp.id] || 'Absent';
-      const multiplier = type === 'Full Day' ? 1 : type === 'Half Day' ? 0.5 : 0;
-      const salary = emp.salaryPerDay * multiplier;
-      return {
-        name: emp.name,
-        profile: emp.profile,
-        login: emp.login,
-        logout: emp.logout,
-        type,
-        salary,
-      };
-    });
-    setModalData({ bulk: true, data: summary });
-    setBulkMode(false);
-    setBulkSelection({});
-  };
-
   return (
     <div className="p-4 md:p-8 bg-white min-h-screen text-blue-900 font-medium">
       <div className="flex items-center justify-between mb-4">
@@ -95,51 +97,55 @@ export default function AttendanceRequest() {
 
       <div className="overflow-x-auto rounded-md border border-gray-200 shadow">
         <table className="min-w-full text-center">
-          <thead className="bg-blue-100 text-blue-800 font-semibold">
-            <tr>
-              <th className="p-2">Candidate</th>
-              <th>Profile</th>
-              <th>Login</th>
-              <th>Logout</th>
-              <th>EOD</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map((emp) => (
-              <tr key={emp.id} className="border-t">
-                <td className="py-2 flex items-center gap-3 justify-center">
-                  <img src={emp.imageUrl} alt="profile" className="w-10 h-10 rounded-full object-cover" />
-                  <span>{emp.name}</span>
-                </td>
-                <td>{emp.profile}</td>
-                <td>{emp.login}</td>
-                <td>{emp.logout}</td>
-                <td>
-                  {emp.eodFile ? (
-                    <a
-                      href={emp.eodFile}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline hover:text-blue-800"
-                    >
-                      View File
-                    </a>
-                  ) : (
-                    <span className="text-red-500">Not Submitted</span>
-                  )}
-                </td>
-                <td>
-                  <button
-                    onClick={() => handleAppearanceClick(emp)}
-                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                  >
-                    Appearance
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+       <thead className="bg-blue-100 text-blue-800 font-semibold">
+  <tr>
+    <th className="p-2">Profile</th>
+    <th>Name</th>
+    <th>Login</th>
+    <th>Logout</th>
+    <th>EOD</th>
+    <th>Actions</th>
+  </tr>
+</thead>
+<tbody>
+  {employees.map((emp) => (
+    <tr key={emp.id} className="border-t">
+      {/* Profile column */}
+      <td className="py-2 flex items-center gap-3 justify-center">
+        <img src={emp.imageUrl} alt="profile" className="w-10 h-10 rounded-full object-cover" />
+      </td>
+
+      {/* ✅ Name column (should display username here) */}
+      <td>{emp.username}</td>
+
+      <td>{emp.login}</td>
+      <td>{emp.logout}</td>
+      <td>
+        {emp.eodFile ? (
+          <a
+            href={emp.eodFile}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            View File
+          </a>
+        ) : (
+          <span className="text-red-500">Not Submitted</span>
+        )}
+      </td>
+      <td>
+        <button
+          onClick={() => handleAppearanceClick(emp)}
+          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+        >
+          Appearance
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
         </table>
       </div>
 
@@ -186,7 +192,7 @@ export default function AttendanceRequest() {
               <h3 className="text-xl font-bold mb-3">Select Attendance Type</h3>
               {employees.map((emp) => (
                 <div key={emp.id} className="border-b py-2">
-                  <p>👤 <strong>{emp.name}</strong> — {emp.profile}</p>
+                  <p>👤 <strong>{emp.username}</strong> — {emp.profile}</p>
                   <div className="flex gap-2 mt-1">
                     {['Full Day', 'Half Day', 'Absent'].map((type) => (
                       <button
@@ -204,14 +210,20 @@ export default function AttendanceRequest() {
                   </div>
                 </div>
               ))}
-              <div className="mt-4 flex justify-end">
-                <button
-                  onClick={submitBulkAttendance}
-                  className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
-                >
-                  Submit All
-                </button>
-              </div>
+             <div className="mt-4 flex justify-end gap-3">
+  <button
+    onClick={() => setBulkMode(false)}
+    className="px-4 py-2 bg-gray-300 text-blue-900 rounded hover:bg-gray-400"
+  >
+    Cancel
+  </button>
+  <button
+    onClick={submitBulkAttendance}
+    className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
+  >
+    Submit All
+  </button>
+</div>
             </motion.div>
           </motion.div>
         )}

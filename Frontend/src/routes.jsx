@@ -5,6 +5,7 @@ import Register from './Pages/EmployerDashboard/Register';
 import EmployerDashboard from './Pages/EmployerDashboard/EmployerDashboard';
 import EmployeeDashboard from './Pages/EmployeeDashboard/EmployeeDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import AttendanceRequest from './Pages/EmployerDashboard/AttendanceRegister';
 
 
 export default function AppRoutes() {
@@ -15,6 +16,7 @@ export default function AppRoutes() {
       <Route path="/landing" element={<Landing />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/attendance-register" element={<AttendanceRequest />} />
 
 
       {/* Protected Employer Dashboard Route with Nested Routes */}

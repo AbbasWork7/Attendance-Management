@@ -9,8 +9,9 @@ export default function Profile() {
     name: '',
     email: '',
     phone: '',
-    location: '',
+    company: '',
     role: '',
+    salary: '',
     profilePic: null,
   });
 
@@ -32,13 +33,19 @@ export default function Profile() {
       name: data.employee_name || '',
       email: data.email || '',
       phone: data.contact || '',
-      location: data.company_name || '',
+      company: data.company_name || '',
+      salary: data.salary || '',
       role: data.designation || '',
       profilePic: null,
     });
 
-    // Optional default picture
-    setProfilePicPreview('https://i.pravatar.cc/150?img=8');
+    if (data.profile_picture) {
+        setProfilePicPreview(data.profile_picture);  // Full image URL from backend
+      } else {
+        setProfilePicPreview('https://img.freepik.com/free-vector/user-circles-set_78370-4704.jpg?w=740'); // default
+      }
+
+
   } catch (err) {
     console.error('Profile fetch error:', err);
     toast.error('❌ Failed to fetch profile');
@@ -160,6 +167,24 @@ export default function Profile() {
             className="w-full border p-2 rounded bg-gray-100"
           />
         </div>
+         <div>
+          <label className="block text-sm font-medium mb-1">Company</label>
+          <input
+            type="text"
+            value={user.company}
+            disabled
+            className="w-full border p-2 rounded bg-gray-100"
+          />
+        </div>
+         <div>
+          <label className="block text-sm font-medium mb-1">Salary</label>
+          <input
+            type="text"
+            value={user.salary}
+            disabled
+            className="w-full border p-2 rounded bg-gray-100"
+          />
+        </div>
         <div>
           <label className="block text-sm font-medium mb-1">Email</label>
           <input
@@ -181,15 +206,7 @@ export default function Profile() {
             className={`w-full border p-2 rounded ${isEditing ? '' : 'bg-gray-100'}`}
           />
         </div>
-        <div className="sm:col-span-2">
-          <label className="block text-sm font-medium mb-1">Location</label>
-          <input
-            type="text"
-            value={user.location}
-            disabled
-            className="w-full border p-2 rounded bg-gray-100"
-          />
-        </div>
+    
       </div>
 
       <div className="mt-6 text-right">

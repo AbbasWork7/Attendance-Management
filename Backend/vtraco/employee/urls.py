@@ -1,8 +1,10 @@
 from django.urls import path
 from .views import attendance_login, attendance_logout, get_employees, employee_request, get_employee_salary_details, update_profile_info,get_user_notifications
-
+from .views import EmployeeListView 
 from .views import get_profile
 from . import views
+from django.urls import path, include 
+from .views import SalaryBulkCreateView
 
 urlpatterns = [
     path('attendance/login/', attendance_login, name='attendance_login'),
@@ -13,7 +15,10 @@ urlpatterns = [
     path('update-profile/', update_profile_info, name='update-profile'),
    path('employee/profile/', get_profile, name='get_profile'),
  path('profile/', get_profile, name='get_profile'),
+   path('salaries/bulk_create/', SalaryBulkCreateView.as_view()),
 
+    path('employee/', EmployeeListView.as_view(), name='employee-list'),
+ 
     # path('update_employee_request/<int:request_id>/', update_employee_request, name='update_employee_request'),
     path('notifications/', get_user_notifications, name='get-user-notifications'),
 ]

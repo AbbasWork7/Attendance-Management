@@ -67,6 +67,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     country_code = models.CharField(max_length=5, null=True, blank=True)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], null=True, blank=True)
+    profile = models.CharField(max_length=255, blank=True, null=True)
+
+    # Required fix for DecimalField
+    salary_per_day = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    # Example if you’re using login/logout tracking
+    login = models.TimeField(blank=True, null=True)
+    logout = models.TimeField(blank=True, null=True)
+
    
     objects = CustomUserManager()
 

@@ -33,3 +33,17 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ['id', 'message', 'is_read', 'created_at']
+class CustomUserSerializer(serializers.ModelSerializer):
+    login = serializers.SerializerMethodField()
+    logout = serializers.SerializerMethodField()
+
+    def get_login(self, obj):
+        # Replace with actual logic
+        return None
+
+    def get_logout(self, obj):
+        return None
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username',   'email', 'login', 'logout']
