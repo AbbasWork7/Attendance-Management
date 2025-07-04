@@ -47,7 +47,7 @@ const MyProfile = () => {
           });
         }
       } catch (error) {
-        console.error("❌ Error fetching employer profile:", error);
+        console.error(" Error fetching employer profile:", error);
       } finally {
         setIsLoading(false);
       }

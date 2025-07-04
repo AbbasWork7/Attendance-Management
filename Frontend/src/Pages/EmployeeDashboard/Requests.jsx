@@ -34,12 +34,12 @@ export default function Requests() {
       );
 
       if (response.status === 200 || response.status === 201) {
-        setStatus('✅ Request submitted successfully!');
-        toast.success('✅ Request submitted successfully!');
+        setStatus(' Request submitted successfully!');
+        toast.success(' Request submitted successfully!');
         setMessage('');
       } else {
-        setStatus('⚠️ Failed to submit request.');
-        toast.error('⚠️ Failed to submit request.');
+        setStatus(' Failed to submit request.');
+        toast.error(' Failed to submit request.');
       }
     } catch (error) {
       const errorMessage = error.response?.data?.errors
@@ -47,8 +47,8 @@ export default function Requests() {
         : error.response?.data?.detail || error.message;
 
       console.error('API Error:', errorMessage);
-      setStatus(`❌ Error: ${errorMessage}`);
-      toast.error(`❌ ${errorMessage}`);
+      setStatus(` Error: ${errorMessage}`);
+      toast.error(` ${errorMessage}`);
     }
   }
   

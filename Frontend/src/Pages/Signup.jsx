@@ -77,14 +77,14 @@ export default function Signup() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('✅ Signup success:', data);
+        console.log(' Signup success:', data);
         navigate('/Landing');
       } else {
         setError(data.message || data.detail || 'Signup failed. Please try again.');
       }
     } catch (err) {
       console.error('Signup error:', err);
-      setError('🌐 Network error. Please ensure the backend is running.');
+      setError(' Network error. Please ensure the backend is running.');
     }
   };
 

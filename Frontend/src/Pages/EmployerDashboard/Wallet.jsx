@@ -9,7 +9,7 @@ export default function Wallet() {
 
   const handleRecharge = () => {
     rechargeWallet(10); // Recharge ₹10
-    toast.success("✅ Wallet recharged!");
+    toast.success(" Wallet recharged!");
     hasShownToast.current = false; // Allow toast to show again later
   };
 

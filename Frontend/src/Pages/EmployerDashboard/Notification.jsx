@@ -25,10 +25,10 @@ export default function Notification() {
         if (res.data.status === "success" && Array.isArray(res.data.notifications)) {
           setNotifications(res.data.notifications);
         } else {
-          toast.error("❌ Failed to load notifications.");
+          toast.error(" Failed to load notifications.");
         }
       } catch (err) {
-        toast.error("❌ Error loading notifications.");
+        toast.error(" Error loading notifications.");
         console.error(err);
       } finally {
         setLoading(false);
@@ -67,7 +67,7 @@ export default function Notification() {
       );
 
       if (res.data.status === "success") {
-        toast.success(`✅ Request ${status} successfully!`);
+        toast.success(` Request ${status} successfully!`);
         // Remove the notification from list
         setNotifications((prev) => prev.filter((n) => n.id !== id));
         setReply((prev) => {
@@ -76,13 +76,13 @@ export default function Notification() {
           return newReply;
         });
       } else {
-        toast.error("❌ Failed to submit response.");
+        toast.error(" Failed to submit response.");
       }
     } catch (err) {
       if (err.response?.status === 404) {
-        toast.error("❌ API endpoint not found (404).");
+        toast.error(" API endpoint not found (404).");
       } else {
-        toast.error("❌ Server error.");
+        toast.error(" Server error.");
       }
       console.error(err);
     }
@@ -131,13 +131,13 @@ export default function Notification() {
                   onClick={() => handleResponse(note.id, "approved")}
                   className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
                 >
-                  ✅ Approve
+                   Approve
                 </button>
                 <button
                   onClick={() => handleResponse(note.id, "declined")}
                   className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
                 >
-                  ❌ Decline
+                   Decline
                 </button>
               </div>
             </li>

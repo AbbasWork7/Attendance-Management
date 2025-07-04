@@ -48,7 +48,7 @@ export default function Profile() {
 
   } catch (err) {
     console.error('Profile fetch error:', err);
-    toast.error('❌ Failed to fetch profile');
+    toast.error(' Failed to fetch profile');
   }
 };
 
@@ -96,14 +96,14 @@ export default function Profile() {
       });
 
       if (response.status === 200 || response.status === 201) {
-        toast.success('✅ Profile updated successfully!');
+        toast.success(' Profile updated successfully!');
         setIsEditing(false);
       } else {
-        toast.error('❌ Failed to update profile.');
+        toast.error(' Failed to update profile.');
       }
     } catch (error) {
       console.error('Update profile error:', error);
-      toast.error('❌ Error while updating profile.');
+      toast.error(' Error while updating profile.');
     }
   };
 
@@ -215,7 +215,7 @@ export default function Profile() {
             onClick={handleSubmit}
             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
           >
-            ✅ Submit
+             Submit
           </button>
         ) : (
           <button

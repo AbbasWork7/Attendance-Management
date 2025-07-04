@@ -74,7 +74,7 @@ export default function Register() {
         alert("Update failed: " + (data.message || "Check your inputs"));
       }
     } catch (err) {
-      console.error("❌ Error:", err);
+      console.error(" Error:", err);
       alert("Something went wrong. Try again later.");
     }
   };

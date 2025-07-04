@@ -112,10 +112,10 @@ const handleLogin = async (e) => {
       const res = await axios.post(`${ BASE_URL}/api/users/forgot-password/`, { email });
       if (res.status === 200) {
         setOtpSent(true);
-        setError('✅ OTP sent to your email!');
+        setError(' OTP sent to your email!');
       }
     } catch (err) {
-      setError(err.response?.data?.error || '❌ Failed to send OTP.');
+      setError(err.response?.data?.error || ' Failed to send OTP.');
     } finally {
       setIsLoading(false);
     }
@@ -143,7 +143,7 @@ const handleLogin = async (e) => {
       });
 
       if (res.data.status === 'success') {
-        setError('✅ Password reset successfully!');
+        setError(' Password reset successfully!');
         setOtpSent(false);
         setOtp('');
         setNewPassword('');
@@ -151,7 +151,7 @@ const handleLogin = async (e) => {
         setEmail('');
       }
     } catch (err) {
-      setError(err.response?.data?.error || '❌ Failed to reset password.');
+      setError(err.response?.data?.error || ' Failed to reset password.');
     } finally {
       setIsLoading(false);
     }

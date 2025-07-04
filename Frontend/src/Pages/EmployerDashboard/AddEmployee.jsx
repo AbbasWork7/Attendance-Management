@@ -64,7 +64,7 @@ export default function AddEmployee() {
       });
 
       if (response.status === 201 || response.status === 200) {
-        toast.success("✅ Employee added successfully!");
+        toast.success(" Employee added successfully!");
         useEmployeeSlot();
 
         addCandidate({
@@ -84,24 +84,24 @@ export default function AddEmployee() {
           salary: "",
         });
       } else {
-        toast.error("❌ Failed to add employee. Please try again.");
+        toast.error(" Failed to add employee. Please try again.");
       }
     } catch (error) {
       console.error("API Error:", error);
 
       if (error.response) {
         if (error.response.status === 401) {
-          toast.error("🔐 Unauthorized. Please log in again.");
+          toast.error(" Unauthorized. Please log in again.");
           navigate("/landing");
         } else if (error.response.data?.error) {
-          toast.error(`❗ ${error.response.data.error}`);
+          toast.error(` ${error.response.data.error}`);
         } else if (error.response.data?.message) {
-          toast.error(`❗ ${error.response.data.message}`);
+          toast.error(` ${error.response.data.message}`);
         } else {
-          toast.error("❌ Something went wrong. Try again.");
+          toast.error(" Something went wrong. Try again.");
         }
       } else {
-        toast.error("🌐 Network error. Server might be offline.");
+        toast.error(" Network error. Server might be offline.");
       }
     }
   };
@@ -144,7 +144,7 @@ export default function AddEmployee() {
               animate={{ scale: 1 }}
               exit={{ scale: 0.7 }}
             >
-              <h2 className="text-xl font-bold text-red-600 mb-3">❌ Insufficient Wallet Balance</h2>
+              <h2 className="text-xl font-bold text-red-600 mb-3"> Insufficient Wallet Balance</h2>
               <p className="text-blue-900 mb-4">Please recharge your wallet to add a new employee.</p>
               <button
                 onClick={() => {

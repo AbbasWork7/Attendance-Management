@@ -19,7 +19,7 @@ export default function SubscriptionTable() {
     const isExpired = !candidate.expiry || now > candidate.expiry;
 
     if (wallet <= 0) {
-      toast.error("❌ Wallet balance is insufficient. Please recharge.", {
+      toast.error(" Wallet balance is insufficient. Please recharge.", {
         duration: 3000,
         style: { background: "#fff3f3", color: "#c0392b" },
         icon: "🚫",
@@ -28,7 +28,7 @@ export default function SubscriptionTable() {
     }
 
     if (!isExpired) {
-      toast("✅ Subscription already active", {
+      toast(" Subscription already active", {
         style: { background: "#f0fdf4", color: "#15803d" },
         icon: "🟢",
       });
@@ -37,7 +37,7 @@ export default function SubscriptionTable() {
 
     setWallet((w) => w - 1);
     extendCandidateSubscription(id);
-    toast.success("🎉 Subscription recharged for 30 days!", {
+    toast.success(" Subscription recharged for 30 days!", {
       duration: 3000,
       style: { background: "#f0f9ff", color: "#0369a1" },
       icon: "⚡",

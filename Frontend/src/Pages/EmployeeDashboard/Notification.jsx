@@ -17,13 +17,13 @@ export default function Notification() {
         } else if (response.data.status === 'success' && Array.isArray(response.data.notifications)) {
           setNotifications(response.data.notifications);
         } else {
-          setError('⚠️ Failed to load notifications.');
+          setError(' Failed to load notifications.');
         }
         setLoading(false);
       })
       .catch((err) => {
         console.error('API Error:', err?.message || err);
-        setError('❌ Could not load notifications.');
+        setError(' Could not load notifications.');
         setLoading(false);
       });
   }, []);
