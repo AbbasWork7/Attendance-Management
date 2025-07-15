@@ -12,7 +12,9 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.8",
     "axios": "^1.10.0",
+    "express": "^5.1.0",
     "framer-motion": "^12.18.1",
+    "http-proxy": "^1.18.1",
     "lucide-react": "^0.515.0",
     "react": "^19.1.0",
     "react-calendar": "^6.0.0",
@@ -36,5 +38,10 @@
     "postcss": "^8.5.4",
     "tailwindcss": "^4.1.8",
     "vite": "^6.3.5"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
