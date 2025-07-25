@@ -17,5 +17,6 @@ urlpatterns = [
     path('get-all-employees/', views.get_all_employees, name='get_all_employees'),
       path('details/', views.get_employer, name='get_employer'),
       path('api/', include('employee.urls')),
+       path('bulk-update-salary/', views.bulk_update_salary, name='bulk_update_salary'),
       
 ]

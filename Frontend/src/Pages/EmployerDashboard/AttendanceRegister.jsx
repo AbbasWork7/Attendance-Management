@@ -20,38 +20,46 @@ export default function AttendanceRequest() {
   }, []);
 
   const submitBulkAttendance = async () => {
-    const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
 
-    const summary = employees.map((emp) => {
-      const type = bulkSelection[emp.id] || 'Absent';
-      const multiplier = type === 'Full Day' ? 1 : type === 'Half Day' ? 0.5 : 0;
-      const salary = emp.salaryPerDay * multiplier;
+  const summary = employees.map((emp) => {
+    const type = bulkSelection[emp.id] || 'Absent';
+    const multiplier = type === 'Full Day' ? 1 : type === 'Half Day' ? 0.5 : 0;
+    const salary = emp.salaryPerDay * multiplier;
 
-      return {
-        user: emp.id,
-        date: today,
-        attendance_type: type.toLowerCase().replace(" ", "_"),
-        salary,
-        status: false,
-      };
-    });
+    return {
+      user: emp.id,
+      date: today,
+      attendance_type: type.toLowerCase().replace(" ", "_"),
+      salary,
+      status: false,
+    };
+  });
 
-    try {
-      const token = localStorage.getItem("access_token");
+  try {
+    const token = localStorage.getItem("access_token");
 
-      await axios.post("http://127.0.0.1:8000/api/salaries/bulk_create/", summary, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    await axios.post(
+      "http://127.0.0.1:8000/api/salaries/bulk_create/",
+      { salaries: summary }, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-      alert("Bulk attendance submitted successfully!");
-      setModalData({ bulk: true, data: summary });
-      setBulkMode(false);
-      setBulkSelection({});
-    } catch (err) {
-      console.error("Bulk submit failed:", err);
-      alert("Failed to submit attendance");
-    }
-  };
+    alert("Bulk attendance submitted successfully!");
+    setModalData({ bulk: true, data: summary });
+    setBulkMode(false);
+    setBulkSelection({});
+  } catch (err) {
+    console.error("Bulk submit failed:", err.response?.data || err.message);
+    alert("Failed to submit attendance. Please check the console for details.");
+  }
+};
+
 
   const handleAppearanceClick = (employee) => {
     setSelectedEmployee(employee);
@@ -185,10 +193,10 @@ export default function AttendanceRequest() {
           <motion.div
             className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div
-              className="bg-white rounded-xl p-6 w-[95%] max-w-xl text-blue-900 shadow-lg"
-              initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.6 }}
-            >
+           <motion.div
+        className="bg-white rounded-xl p-6 w-[95%] max-w-xl text-blue-900 shadow-lg max-h-[80vh] overflow-y-auto"
+        initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.6 }}
+      >
               <h3 className="text-xl font-bold mb-3">Select Attendance Type</h3>
               {employees.map((emp) => (
                 <div key={emp.id} className="border-b py-2">

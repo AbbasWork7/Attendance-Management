@@ -1,6 +1,13 @@
 from rest_framework import serializers
 from .models import CustomUser
 from employee.models import Notification
+from .models import Salary
+
+
+class SalarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Salary
+        fields = ['id', 'user', 'date', 'attendance_type', 'salary', 'status']
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -26,3 +33,4 @@ class EmployerUpdateSerializer(serializers.ModelSerializer):
             'profile_completed',
             'profile_picture',  # Include if you want profile image
         ]
+
