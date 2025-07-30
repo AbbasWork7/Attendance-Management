@@ -59,7 +59,7 @@ export default function AddEmployee() {
       const response = await axios.post(`${BASE_URL}/api/users/add-employee/`, form, {
         headers: {
           Authorization: `Bearer ${token}`,
-          // ❗ Don't manually set "Content-Type", Axios sets it automatically
+         
         },
       });
 
